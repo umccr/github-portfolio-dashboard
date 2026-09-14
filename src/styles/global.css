@@ -1,0 +1,314 @@
+@import "tailwindcss";
+
+:root {
+  --bg:       #060606;
+  --surface:  #141414;
+  --surface2: #1a1a1a;
+  --border:   #2a2a2a;
+  --accent:   #67a5ff;
+  --accent-soft: rgba(103, 165, 255, 0.12);
+  --accent-border: rgba(103, 165, 255, 0.35);
+  --action:   #f5c518;
+  --action-shadow: rgba(245, 197, 24, 0.24);
+  --text:     #ffffff;
+  --text2:    #888888;
+  --text3:    #444444;
+  --green:    #22c55e;
+  --red:      #ef4444;
+  --blue:     #3b82f6;
+  --amber:    #f59e0b;
+  --purple:   #a855f7;
+  --radius:   8px;
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --transition: 160ms ease;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg:       #ffffff;
+  --surface:  #f5f5f5;
+  --surface2: #ececec;
+  --border:   #d5d5d5;
+  --accent:   #245ac7;
+  --accent-soft: rgba(36, 90, 199, 0.08);
+  --accent-border: rgba(36, 90, 199, 0.28);
+  --action:   #e2ad00;
+  --action-shadow: rgba(226, 173, 0, 0.22);
+  --text:     #060606;
+  --text2:    #666666;
+  --text3:    #999999;
+  --green:    #16a34a;
+  --red:      #dc2626;
+  --blue:     #2563eb;
+  --amber:    #d97706;
+  --purple:   #9333ea;
+  --radius:   8px;
+}
+
+html, body, #root {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+button { cursor: pointer; font-family: inherit; }
+input, select { font-family: inherit; }
+a { color: var(--accent); text-decoration: none; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fadeUp 0.22s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+/* Dark theme */
+:root:not([data-theme="light"]) input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Light theme */
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+.navbar-link:hover {
+  color: var(--accent) !important;
+}
+
+.dashboard-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 58px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-wordmark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-brand-group {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-wordmark-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+}
+
+.dashboard-scope {
+  position: relative;
+}
+
+.dashboard-scope-button {
+  min-width: 158px;
+  height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dashboard-scope-button:hover,
+.dashboard-scope-button[aria-expanded="true"] {
+  border-color: var(--accent-border);
+  background: var(--surface2);
+}
+
+.dashboard-scope-button > span:nth-last-child(2) {
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-scope-avatar,
+.dashboard-scope-avatars img {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.dashboard-scope-avatars {
+  min-width: 29px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dashboard-scope-avatars img + img {
+  margin-left: -7px;
+}
+
+.dashboard-scope-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 140;
+  width: 260px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-scope-menu button {
+  width: 100%;
+  padding: 9px 10px;
+  display: grid;
+  grid-template-columns: 30px 1fr 18px;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  text-align: left;
+}
+
+.dashboard-scope-menu button:hover {
+  background: var(--surface2);
+}
+
+.dashboard-scope-menu strong,
+.dashboard-scope-menu small {
+  display: block;
+}
+
+.dashboard-scope-menu strong {
+  font-size: 12px;
+}
+
+.dashboard-scope-menu small {
+  color: var(--text2);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.dashboard-navlinks {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.dashboard-nav-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.dashboard-settings-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  color: var(--text2);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.dashboard-settings-button:hover {
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.dashboard-error {
+  width: min(560px, 100%);
+  padding: 18px;
+  text-align: center;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+  border-radius: var(--radius);
+}
+
+.dashboard-error p {
+  margin: 0 0 14px;
+}
+
+@media (max-width: 760px) {
+  .dashboard-navbar {
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .dashboard-wordmark > span:last-child,
+  .dashboard-settings-button span,
+  .dashboard-rate {
+    display: none;
+  }
+
+  .dashboard-scope-button {
+    min-width: 128px;
+  }
+
+  .dashboard-navlinks a {
+    padding-inline: 8px !important;
+  }
+
+}
