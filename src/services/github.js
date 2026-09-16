@@ -59,7 +59,81 @@ async function cacheSetEntry(key, value, etag) {
   }
 }
 
+/**
+ * Cache partitioning by credential.
+ *
+ * Authenticated responses can contain private data and always reflect the exact
+ * repository selection of the token that fetched them, so they must never be
+ * served to a different credential. Persisted entries are therefore keyed by a
+ * truncated SHA-256 fingerprint of the token rather than a shared
+ * "authenticated" label. A personal access token is high-entropy, so the digest
+ * is not practically reversible and no secret reaches IndexedDB.
+ *
+ * Where SubtleCrypto is unavailable (an insecure context, or a test
+ * environment) no fingerprint can be derived. Those responses fall back to a
+ * per-credential in-memory cache that dies with the page instead of being
+ * persisted under a key that another token could reuse.
+ */
+const PUBLIC_SCOPE = 'public'
+const fingerprintsByToken = new Map()
+const sessionIdsByToken = new Map()
+const memoryCache = new Map()
+
+async function tokenFingerprint(pat) {
+  const existing = fingerprintsByToken.get(pat)
+  if (existing) return existing
+
+  const subtle = globalThis.crypto?.subtle
+  if (!subtle) return ''
+
+  try {
+    const digest = await subtle.digest('SHA-256', new TextEncoder().encode(pat))
+    const fingerprint = Array.from(new Uint8Array(digest))
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('')
+      .slice(0, 32)
+
+    fingerprintsByToken.set(pat, fingerprint)
+    return fingerprint
+  } catch {
+    return ''
+  }
+}
+
+// Opaque per-token label for the in-memory fallback, so the raw token is never
+// embedded in a cache key even though that cache is never written to disk.
+function sessionCredentialId(pat) {
+  const existing = sessionIdsByToken.get(pat)
+  if (existing) return existing
+
+  const id = `session-${sessionIdsByToken.size + 1}`
+  sessionIdsByToken.set(pat, id)
+  return id
+}
+
+async function cacheLocation(url, pat) {
+  if (!pat) return { key: `${PUBLIC_SCOPE}:${url}`, persistent: true }
+
+  const fingerprint = await tokenFingerprint(pat)
+  return fingerprint
+    ? { key: `authenticated:${fingerprint}:${url}`, persistent: true }
+    : { key: `authenticated:${sessionCredentialId(pat)}:${url}`, persistent: false }
+}
+
+function readCacheEntry(key, persistent) {
+  return persistent ? cacheGetEntry(key) : Promise.resolve(memoryCache.get(key) || null)
+}
+
+function writeCacheEntry(key, value, etag, persistent) {
+  if (persistent) return cacheSetEntry(key, value, etag)
+
+  memoryCache.set(key, { key, value, etag, savedAt: Date.now() })
+  return Promise.resolve(true)
+}
+
 export async function cacheClear() {
+  memoryCache.clear()
+
   try {
     const db = await openDB()
     return await new Promise(resolve => {
@@ -114,10 +188,11 @@ function publishRateLimit(response) {
 }
 
 async function fetchWithCache(url, pat) {
-  // Do not put the token itself in IndexedDB. Authentication mode is enough to
-  // prevent public responses from shadowing a later authenticated request.
-  const cacheKey = `${pat ? 'authenticated' : 'public'}:${url}`
-  const cached = await cacheGetEntry(cacheKey)
+  // The token itself is never stored. Entries are partitioned per credential so
+  // one token cannot read another token's cached private data, and so a public
+  // response cannot shadow a later authenticated request.
+  const { key: cacheKey, persistent } = await cacheLocation(url, pat)
+  const cached = await readCacheEntry(cacheKey, persistent)
 
   if (cached && Date.now() - cached.savedAt <= TTL_MS) return cached.value
 
@@ -125,7 +200,7 @@ async function fetchWithCache(url, pat) {
   publishRateLimit(response)
 
   if (response.status === 304 && cached) {
-    await cacheSetEntry(cacheKey, cached.value, cached.etag)
+    await writeCacheEntry(cacheKey, cached.value, cached.etag, persistent)
     return cached.value
   }
 
@@ -140,7 +215,7 @@ async function fetchWithCache(url, pat) {
   if (!response.ok) throw new Error(`HTTP_${response.status}`)
 
   const data = response.status === 204 ? [] : await response.json()
-  await cacheSetEntry(cacheKey, data, response.headers.get('etag'))
+  await writeCacheEntry(cacheKey, data, response.headers.get('etag'), persistent)
   return data
 }
 
@@ -294,8 +369,8 @@ export async function fetchContributorStats(
   { maxAttempts = 4, retryDelayMs = 750 } = {},
 ) {
   const url = `https://api.github.com/repos/${encode(org)}/${encode(repo)}/stats/contributors`
-  const cacheKey = `${pat ? 'authenticated' : 'public'}:${url}`
-  const cached = await cacheGetEntry(cacheKey)
+  const { key: cacheKey, persistent } = await cacheLocation(url, pat)
+  const cached = await readCacheEntry(cacheKey, persistent)
 
   if (cached && Date.now() - cached.savedAt <= TTL_MS) return cached.value
 
@@ -310,7 +385,7 @@ export async function fetchContributorStats(
     }
 
     if (response.status === 304 && cached) {
-      await cacheSetEntry(cacheKey, cached.value, cached.etag)
+      await writeCacheEntry(cacheKey, cached.value, cached.etag, persistent)
       return cached.value
     }
 
@@ -326,7 +401,7 @@ export async function fetchContributorStats(
 
     const data = response.status === 204 ? [] : await response.json()
     const stats = Array.isArray(data) ? data : []
-    await cacheSetEntry(cacheKey, stats, response.headers.get('etag'))
+    await writeCacheEntry(cacheKey, stats, response.headers.get('etag'), persistent)
     return stats
   }
 

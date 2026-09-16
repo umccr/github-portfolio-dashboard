@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { selectAnalyticsRepositories } from './analytics'
+import { selectAnalyticsRepositories } from '../analytics'
 
 const repo = (id, orgLogin, stars) => ({
   id,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { StatCard } from './UI'
+import { StatCard } from '../UI'
 
 describe('StatCard', () => {
   it('exposes metric help text from a keyboard-focusable help icon', () => {

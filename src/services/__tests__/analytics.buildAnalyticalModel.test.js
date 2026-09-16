@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildAnalyticalModel } from './analytics'
+import { buildAnalyticalModel } from '../analytics'
 
 function makeRepo(name, overrides = {}) {
   return {

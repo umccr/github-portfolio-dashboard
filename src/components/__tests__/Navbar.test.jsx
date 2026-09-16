@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import Navbar from './Navbar'
+import Navbar from '../Navbar'
 
 const app = vi.hoisted(() => ({
   selectOrganization: vi.fn(),
@@ -16,10 +16,10 @@ const app = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('../context/app-context', () => ({
+vi.mock('../../context/app-context', () => ({
   useApp: () => ({ ...app.state, selectOrganization: app.selectOrganization }),
 }))
-vi.mock('./ThemeToggle', () => ({ default: () => <button type="button">Theme</button> }))
+vi.mock('../ThemeToggle', () => ({ default: () => <button type="button">Theme</button> }))
 
 describe('Navbar organization scope', () => {
   beforeEach(() => {

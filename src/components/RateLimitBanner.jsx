@@ -1,10 +1,9 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FiZap, FiAlertTriangle } from 'react-icons/fi'
 import { useApp } from '../context/app-context'
 
 export default function RateLimitBanner() {
   const { rateLimit, scopeHasPat } = useApp()
-  const navigate = useNavigate()
   if (!rateLimit) return null
 
   const pct = rateLimit.remaining / rateLimit.limit
@@ -32,12 +31,9 @@ export default function RateLimitBanner() {
         </strong>{' '}
         REQUESTS REMAINING
         {!scopeHasPat && (
-          <span
-            onClick={() => navigate('/settings')}
-            style={{ color: 'var(--accent)', marginLeft: 10, cursor: 'pointer', fontWeight: 600 }}
-          >
+          <Link to="/settings" style={{ color: 'var(--accent)', marginLeft: 10, fontWeight: 600 }}>
             Add required PATs for 5,000 req/hr
-          </span>
+          </Link>
         )}
       </span>
       <span style={{ fontSize: 11, color: 'var(--text2)' }}>

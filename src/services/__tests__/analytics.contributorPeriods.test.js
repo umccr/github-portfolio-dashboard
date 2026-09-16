@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPeriodContributors, getContributorPeriodStart } from './analytics'
+import { buildPeriodContributors, getContributorPeriodStart } from '../analytics'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 

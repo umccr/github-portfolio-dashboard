@@ -52,7 +52,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}'],
+    files: ['**/__tests__/**/*.{js,jsx}', '**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}'],
     languageOptions: {
       globals: {
         ...globals.browser,

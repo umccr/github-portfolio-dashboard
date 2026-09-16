@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchContributorActivity } from './github'
+import { fetchContributorActivity } from '../github'
 
 function githubResponse(status, body, headers = {}) {
   return {

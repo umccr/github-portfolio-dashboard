@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import ContributorsPage from './ContributorsPage'
+import ContributorsPage from '../ContributorsPage'
 
 const mocks = vi.hoisted(() => ({
   fetchContributorStats: vi.fn(),
   state: {},
 }))
 
-vi.mock('../context/app-context', () => ({ useApp: () => mocks.state }))
-vi.mock('../services/github', () => ({ fetchContributorStats: mocks.fetchContributorStats }))
+vi.mock('../../context/app-context', () => ({ useApp: () => mocks.state }))
+vi.mock('../../services/github', () => ({ fetchContributorStats: mocks.fetchContributorStats }))
 
 function repository(name) {
   return {

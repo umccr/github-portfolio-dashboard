@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import AnalyticsPage from './AnalyticsPage'
+import AnalyticsPage from '../AnalyticsPage'
 
 const app = vi.hoisted(() => ({
   state: {
@@ -21,7 +21,7 @@ const app = vi.hoisted(() => ({
   },
 }))
 
-vi.mock('../context/app-context', () => ({ useApp: () => app.state }))
+vi.mock('../../context/app-context', () => ({ useApp: () => app.state }))
 
 describe('AnalyticsPage loading state', () => {
   it('renders anonymous advanced-analytics progress without crashing', () => {

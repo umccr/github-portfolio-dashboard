@@ -148,7 +148,8 @@ export function AppProvider({ children }) {
       ? DASHBOARD_ORGANIZATIONS.every(organization => completeOrgs.includes(organization))
       : completeOrgs.includes(organizationKey(selectedOrg)))
   const auditComplete = scopeHasPat && auditCompleteScopes.includes(selectedOrg)
-  const advanceAnalyticsComplete = scopeHasPat && advanceAnalyticsCompleteScopes.includes(selectedOrg)
+  const advanceAnalyticsComplete =
+    scopeHasPat && advanceAnalyticsCompleteScopes.includes(selectedOrg)
 
   // Never migrate the upstream app's long-lived token. Removing it closes the
   // localStorage exposure as soon as this version is opened.

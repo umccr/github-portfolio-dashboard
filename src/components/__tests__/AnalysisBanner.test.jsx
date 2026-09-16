@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import AnalysisBanner from './AnalysisBanner'
+import AnalysisBanner from '../AnalysisBanner'
 
 const app = vi.hoisted(() => ({ state: { scopeHasPat: false, selectedOrg: 'all' } }))
 
-vi.mock('../context/app-context', () => ({ useApp: () => app.state }))
+vi.mock('../../context/app-context', () => ({ useApp: () => app.state }))
 
 function renderBanner(onRun = vi.fn()) {
   render(

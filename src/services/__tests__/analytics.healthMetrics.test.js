@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeHealthScore, computeActivityClassification, computeBusFactor } from './analytics'
+import { computeHealthScore, computeActivityClassification, computeBusFactor } from '../analytics'
 
 function daysAgoISO(days) {
   return new Date(Date.now() - days * 86_400_000).toISOString()

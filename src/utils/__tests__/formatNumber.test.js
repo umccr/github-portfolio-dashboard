@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatNumber } from './formatNumber'
+import { formatNumber } from '../formatNumber'
 
 describe('formatNumber', () => {
   it('return a number in a form of a string if it is lesser than 1000', () => {

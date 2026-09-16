@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchContributorStats } from './github'
+import { fetchContributorStats } from '../github'
 
 describe('fetchContributorStats', () => {
   afterEach(() => {

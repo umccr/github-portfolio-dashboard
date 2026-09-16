@@ -32,6 +32,13 @@ const CONTRIBUTION_PERIODS = [
 
 const CONTRIBUTOR_STATS_BATCH_SIZE = 5
 
+// GitHub answers 202 while it computes /stats/contributors, so the first request
+// for a repository almost never returns data. Public requests must therefore
+// retry too, or a first-time visitor without a token always sees the period
+// filter as unavailable. They get fewer attempts than authenticated requests
+// because the anonymous budget is only 60 requests per hour.
+const PUBLIC_STATS_RETRY = Object.freeze({ maxAttempts: 3 })
+
 function periodStatsWarning(failures, totalCount) {
   if (!failures.length) return ''
 
@@ -169,7 +176,7 @@ export default function ContributorsPage() {
               const orgPat = getPatForOrg(repo.orgLogin)
               return orgPat
                 ? fetchContributorStats(repo.orgLogin, repo.name, orgPat)
-                : fetchContributorStats(repo.orgLogin, repo.name, '', { maxAttempts: 1 })
+                : fetchContributorStats(repo.orgLogin, repo.name, '', PUBLIC_STATS_RETRY)
             }),
           )
 

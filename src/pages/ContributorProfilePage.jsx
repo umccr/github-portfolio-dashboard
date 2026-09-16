@@ -13,6 +13,7 @@ import { C, PageTitle, Spinner, StatCard } from '../components/UI'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { DASHBOARD_ORGANIZATIONS } from '../config/dashboard'
 import { fetchContributorActivity } from '../services/github'
+import { escapeMarkdownTableCell } from '../utils/markdown'
 
 // Reusable ContributionTable component
 function ContributionTable({ items, dateHeader, resolveStatus }) {
@@ -140,12 +141,6 @@ function ContributionTable({ items, dateHeader, resolveStatus }) {
       </table>
     </div>
   )
-}
-
-// Helper to escape table cell values for markdown
-const cell = val => {
-  if (val === null || val === undefined) return ''
-  return String(val).replace(/\r?\n/g, ' ').replace(/\|/g, '\\|')
 }
 
 // Helper to extract owner/repo from GitHub API repository URL
@@ -467,7 +462,7 @@ export default function ContributorProfilePage() {
       prs.forEach(p => {
         const status = p.state === 'open' ? 'Open' : p.isMerged ? 'Merged' : 'Closed'
         const date = p.created_at.slice(0, 10)
-        md += `| ${cell(p.repoName)} | #${p.number} | ${cell(p.title)} | ${date} | **${status}** | [PR Link](${p.html_url}) |\n`
+        md += `| ${escapeMarkdownTableCell(p.repoName)} | #${p.number} | ${escapeMarkdownTableCell(p.title)} | ${date} | **${status}** | [PR Link](${p.html_url}) |\n`
       })
     } else {
       md += `No pull requests recorded in this period.\n`
@@ -481,7 +476,7 @@ export default function ContributorProfilePage() {
       issues.forEach(i => {
         const status = i.state === 'open' ? 'Open' : 'Closed'
         const date = i.created_at.slice(0, 10)
-        md += `| ${cell(i.repoName)} | #${i.number} | ${cell(i.title)} | ${date} | **${status}** | [Issue Link](${i.html_url}) |\n`
+        md += `| ${escapeMarkdownTableCell(i.repoName)} | #${i.number} | ${escapeMarkdownTableCell(i.title)} | ${date} | **${status}** | [Issue Link](${i.html_url}) |\n`
       })
     } else {
       md += `No issues opened in this period.\n`

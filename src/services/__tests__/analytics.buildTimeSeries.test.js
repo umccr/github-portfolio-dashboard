@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildTimeSeries } from './analytics'
+import { buildTimeSeries } from '../analytics'
 
 describe('buildTimeSeries', () => {
   it('buckets a plain issue by its created_at month', () => {

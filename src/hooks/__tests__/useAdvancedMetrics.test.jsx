@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useAdvancedMetrics } from './useSortedData'
+import { useAdvancedMetrics } from '../useSortedData'
 
 describe('useAdvancedMetrics', () => {
   it('returns a truthful empty result when no pull requests are loaded', () => {

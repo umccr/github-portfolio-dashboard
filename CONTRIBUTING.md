@@ -15,6 +15,15 @@ pre-commit install
 
 The repository uses npm consistently. Commit `package-lock.json` when dependencies change.
 
+## Tests
+
+Specs live in a `__tests__` folder beside the code they cover, for example
+`src/services/__tests__/analytics.selection.test.js` covers `src/services/analytics.js`.
+Name each file after its subject and use the `.test.js` / `.test.jsx` suffix. When one
+module needs several spec files, prefix them with the module name so they sort together.
+
+Shared test infrastructure — currently the Vitest setup file — lives in `src/test`.
+
 ## Quality checks
 
 Run the complete local quality suite with:

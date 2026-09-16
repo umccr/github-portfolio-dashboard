@@ -40,6 +40,44 @@ function createTokenUrl(organization) {
   return `https://github.com/settings/personal-access-tokens/new?${params}`
 }
 
+/**
+ * Count the private repositories the token can see for one organization.
+ *
+ * This is the only signal available to a read-only client that actually depends
+ * on the token's resource owner. Listing an organization's repositories proves
+ * nothing about ownership: a fine-grained token owned by the *other*
+ * organization still reads public repositories successfully, so a wrong-owner
+ * token would otherwise validate and be stored under the wrong organization.
+ * Private repositories are visible only to a token whose resource owner is that
+ * organization and which has been approved.
+ */
+async function countVisiblePrivateRepos(organization, headers) {
+  // Any failure resolves to zero, which only ever downgrades the result to
+  // "unverified". A probe error must never be read as proof of ownership.
+  try {
+    const response = await fetch(
+      `https://api.github.com/orgs/${encodeURIComponent(organization)}/repos?type=private&per_page=1`,
+      { headers },
+    )
+
+    if (!response.ok) return 0
+
+    const repos = await response.json()
+    return Array.isArray(repos) ? repos.length : 0
+  } catch {
+    return 0
+  }
+}
+
+/**
+ * Verify a token before it is stored against `organization`.
+ *
+ * Resolves with `{ ownershipVerified }`. A false value means only public access
+ * was confirmed, so the caller must not present the organization as fully
+ * authenticated. Rejects when the token is invalid, when the organization is
+ * unreachable, or when the token demonstrably belongs to a different
+ * organization in the portfolio.
+ */
 async function validateOrganizationToken(organization, token) {
   const headers = {
     Accept: 'application/vnd.github+json',
@@ -74,6 +112,24 @@ async function validateOrganizationToken(organization, token) {
     throw new Error(
       `GitHub could not check ${organizationLabel(organization)} access (HTTP ${accessResponse.status}).`,
     )
+
+  if (await countVisiblePrivateRepos(organization, headers)) return { ownershipVerified: true }
+
+  // No private repositories were visible, so the successful read above may have
+  // returned nothing but public data. Check whether this token is instead
+  // authorized for another organization in the portfolio: that is positive proof
+  // it was pasted into the wrong field.
+  const otherOrganizations = DASHBOARD_ORGANIZATIONS.filter(candidate => candidate !== organization)
+
+  for (const candidate of otherOrganizations) {
+    if (await countVisiblePrivateRepos(candidate, headers)) {
+      throw new Error(
+        `This token is authorized for ${organizationLabel(candidate)}, not ${organizationLabel(organization)}. Paste it into the ${organizationLabel(candidate)} field, or create a token whose Resource owner is ${organizationLabel(organization)}.`,
+      )
+    }
+  }
+
+  return { ownershipVerified: false }
 }
 
 export default function SettingsPage() {
@@ -83,6 +139,9 @@ export default function SettingsPage() {
   const [savedOrg, setSavedOrg] = useState('')
   const [validatingOrg, setValidatingOrg] = useState('')
   const [tokenErrors, setTokenErrors] = useState({})
+  // Organizations whose token was accepted but where only public access could be
+  // confirmed. Tracked separately so the UI never implies complete access.
+  const [tokenWarnings, setTokenWarnings] = useState({})
   const [cleared, setCleared] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState(false)
@@ -106,6 +165,7 @@ export default function SettingsPage() {
   const setDraft = (organization, value) => {
     setDrafts(current => ({ ...current, [organization]: value }))
     setTokenErrors(current => ({ ...current, [organization]: '' }))
+    setTokenWarnings(current => ({ ...current, [organization]: '' }))
     if (savedOrg === organization) setSavedOrg('')
   }
 
@@ -115,10 +175,17 @@ export default function SettingsPage() {
 
     setValidatingOrg(organization)
     setTokenErrors(current => ({ ...current, [organization]: '' }))
+    setTokenWarnings(current => ({ ...current, [organization]: '' }))
     try {
-      await validateOrganizationToken(organization, token)
+      const { ownershipVerified } = await validateOrganizationToken(organization, token)
       saveOrgPat(organization, token)
       setSavedOrg(organization)
+      setTokenWarnings(current => ({
+        ...current,
+        [organization]: ownershipVerified
+          ? ''
+          : `Only public access to ${organizationLabel(organization)} could be confirmed. No private repository was visible, so this token may be owned by another organization or still awaiting approval. Analysis of private repositories will be incomplete.`,
+      }))
     } catch (error) {
       setTokenErrors(current => ({
         ...current,
@@ -134,6 +201,7 @@ export default function SettingsPage() {
     saveOrgPat(organization, '')
     setDraft(organization, '')
     setSavedOrg('')
+    setTokenWarnings(current => ({ ...current, [organization]: '' }))
   }
 
   const handleClear = async () => {
@@ -235,6 +303,7 @@ export default function SettingsPage() {
                 const validating = validatingOrg === organization
                 const saved = savedOrg === organization
                 const error = tokenErrors[organization]
+                const warning = tokenWarnings[organization]
 
                 return (
                   <div
@@ -261,9 +330,16 @@ export default function SettingsPage() {
                       >
                         {label} token
                       </label>
-                      {connected && (
-                        <span style={C.pill('var(--green)', 'rgba(34,197,94,.12)')}>CONNECTED</span>
-                      )}
+                      {connected &&
+                        (warning ? (
+                          <span style={C.pill('var(--accent)', 'var(--accent-soft)')}>
+                            PUBLIC ACCESS ONLY
+                          </span>
+                        ) : (
+                          <span style={C.pill('var(--green)', 'rgba(34,197,94,.12)')}>
+                            CONNECTED
+                          </span>
+                        ))}
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 9 }}>
                       <input
@@ -310,6 +386,19 @@ export default function SettingsPage() {
                         {error}
                       </div>
                     )}
+                    {warning && !error && (
+                      <div
+                        role="status"
+                        style={{
+                          color: 'var(--accent)',
+                          fontSize: 12,
+                          lineHeight: 1.5,
+                          marginBottom: 10,
+                        }}
+                      >
+                        {warning}
+                      </div>
+                    )}
                     <div
                       style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
                     >
@@ -326,7 +415,13 @@ export default function SettingsPage() {
                         }}
                       >
                         {saved ? <FiCheck size={13} /> : <FiSave size={13} />}
-                        {validating ? 'Validating…' : saved ? 'Connected' : 'Use for this session'}
+                        {validating
+                          ? 'Validating…'
+                          : saved
+                            ? warning
+                              ? 'Saved'
+                              : 'Connected'
+                            : 'Use for this session'}
                       </button>
                       <button
                         type="button"

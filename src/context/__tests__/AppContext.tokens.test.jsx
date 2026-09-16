@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, waitFor } from '@testing-library/react'
-import { AppProvider } from './AppContext'
-import { useApp } from './app-context'
-import { STORAGE_KEYS } from '../config/dashboard'
+import { AppProvider } from '../AppContext'
+import { useApp } from '../app-context'
+import { STORAGE_KEYS } from '../../config/dashboard'
 
 const mocks = vi.hoisted(() => ({
   fetchOrg: vi.fn(),
@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   fetchContributors: vi.fn(),
 }))
 
-vi.mock('../services/github', () => ({
+vi.mock('../../services/github', () => ({
   cacheClear: vi.fn(),
   fetchOrg: mocks.fetchOrg,
   fetchRepos: mocks.fetchRepos,
@@ -20,7 +20,7 @@ vi.mock('../services/github', () => ({
   fetchRateLimit: vi.fn(),
 }))
 
-vi.mock('../services/cache', () => ({
+vi.mock('../../services/cache', () => ({
   clearAnalysis: vi.fn(),
   loadAnalysis: vi.fn().mockResolvedValue(null),
   saveAnalysis: vi.fn(),
