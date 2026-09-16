@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  computeHealthScore,
-  computeActivityClassification,
-  computeBusFactor,
-} from './analytics'
+import { computeHealthScore, computeActivityClassification, computeBusFactor } from './analytics'
 
 function daysAgoISO(days) {
   return new Date(Date.now() - days * 86_400_000).toISOString()
@@ -23,8 +19,14 @@ describe('computeHealthScore', () => {
   it('lowers the score as open issue count grows relative to the +10 baseline', () => {
     const freshRepo = pushed => ({ pushed_at: pushed, open_issues_count: 0 })
 
-    const noIssues = computeHealthScore({ ...freshRepo(new Date().toISOString()), open_issues_count: 0 }, 0)
-    const manyIssues = computeHealthScore({ ...freshRepo(new Date().toISOString()), open_issues_count: 90 }, 0)
+    const noIssues = computeHealthScore(
+      { ...freshRepo(new Date().toISOString()), open_issues_count: 0 },
+      0,
+    )
+    const manyIssues = computeHealthScore(
+      { ...freshRepo(new Date().toISOString()), open_issues_count: 90 },
+      0,
+    )
 
     expect(manyIssues).toBeLessThan(noIssues)
   })
@@ -43,9 +45,7 @@ describe('computeHealthScore', () => {
     const recentRepo = { pushed_at: daysAgoISO(5), open_issues_count: 0 }
     const staleRepo = { pushed_at: daysAgoISO(95), open_issues_count: 0 }
 
-    expect(computeHealthScore(recentRepo, 5)).toBeGreaterThan(
-      computeHealthScore(staleRepo, 5)
-    )
+    expect(computeHealthScore(recentRepo, 5)).toBeGreaterThan(computeHealthScore(staleRepo, 5))
   })
 
   it('never returns a negative score for a very old, issue-heavy repo', () => {
@@ -101,7 +101,10 @@ describe('computeBusFactor', () => {
 
   it('flags healthy risk when it takes 3+ contributors to exceed 50%', () => {
     const contributors = [
-      { contributions: 25 }, { contributions: 25 }, { contributions: 25 }, { contributions: 25 },
+      { contributions: 25 },
+      { contributions: 25 },
+      { contributions: 25 },
+      { contributions: 25 },
     ]
     // cum: 25/100=.25, 50/100=.5, 75/100=.75>0.5 -> factor 3
     expect(computeBusFactor(contributors)).toEqual({ factor: 3, risk: 'healthy' })

@@ -43,17 +43,30 @@ function openDb() {
 }
 
 function withStore(mode, run) {
-  return openDb().then(db =>
-    new Promise((resolve, reject) => {
-      let result
-      const tx = db.transaction(STORE, mode)
-      const req = run(tx.objectStore(STORE))
+  return openDb().then(
+    db =>
+      new Promise((resolve, reject) => {
+        let result
+        const tx = db.transaction(STORE, mode)
+        const req = run(tx.objectStore(STORE))
 
-      if (req) req.onsuccess = () => { result = req.result }
-      tx.oncomplete = () => { db.close(); resolve(result) }
-      tx.onerror = () => { db.close(); reject(tx.error) }
-      tx.onabort = () => { db.close(); reject(tx.error) }
-    })
+        if (req)
+          req.onsuccess = () => {
+            result = req.result
+          }
+        tx.oncomplete = () => {
+          db.close()
+          resolve(result)
+        }
+        tx.onerror = () => {
+          db.close()
+          reject(tx.error)
+        }
+        tx.onabort = () => {
+          db.close()
+          reject(tx.error)
+        }
+      }),
   )
 }
 

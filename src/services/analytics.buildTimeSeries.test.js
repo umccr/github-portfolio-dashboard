@@ -23,10 +23,12 @@ describe('buildTimeSeries', () => {
   })
 
   it('buckets closed_at into the correct month, separate from created_at', () => {
-    const issues = [{
-      created_at: '2026-01-01T00:00:00Z',
-      closed_at: '2026-02-01T00:00:00Z',
-    }]
+    const issues = [
+      {
+        created_at: '2026-01-01T00:00:00Z',
+        closed_at: '2026-02-01T00:00:00Z',
+      },
+    ]
 
     const result = buildTimeSeries(issues, 'monthly')
 
@@ -40,11 +42,13 @@ describe('buildTimeSeries', () => {
   })
 
   it('buckets a merged PR into prs_merged using pull_request.merged_at, not closed_at', () => {
-    const issues = [{
-      created_at: '2026-01-01T00:00:00Z',
-      closed_at: '2026-01-05T00:00:00Z',
-      pull_request: { merged_at: '2026-01-05T00:00:00Z' },
-    }]
+    const issues = [
+      {
+        created_at: '2026-01-01T00:00:00Z',
+        closed_at: '2026-01-05T00:00:00Z',
+        pull_request: { merged_at: '2026-01-05T00:00:00Z' },
+      },
+    ]
 
     const result = buildTimeSeries(issues, 'monthly')
     const jan = result.find(r => r.date === '2026-01')
@@ -55,11 +59,13 @@ describe('buildTimeSeries', () => {
   })
 
   it('does not count prs_merged for a closed-but-not-merged PR', () => {
-    const issues = [{
-      created_at: '2026-01-01T00:00:00Z',
-      closed_at: '2026-01-05T00:00:00Z',
-      pull_request: { merged_at: null },
-    }]
+    const issues = [
+      {
+        created_at: '2026-01-01T00:00:00Z',
+        closed_at: '2026-01-05T00:00:00Z',
+        pull_request: { merged_at: null },
+      },
+    ]
 
     const result = buildTimeSeries(issues, 'monthly')
     const jan = result.find(r => r.date === '2026-01')
@@ -69,10 +75,7 @@ describe('buildTimeSeries', () => {
   })
 
   it('produces one bucket per week when granularity is weekly, distinct from monthly', () => {
-    const issues = [
-      { created_at: '2026-01-01T00:00:00Z' },
-      { created_at: '2026-01-08T00:00:00Z' },
-    ]
+    const issues = [{ created_at: '2026-01-01T00:00:00Z' }, { created_at: '2026-01-08T00:00:00Z' }]
 
     const weekly = buildTimeSeries(issues, 'weekly')
 
@@ -94,9 +97,6 @@ describe('buildTimeSeries', () => {
   })
 
   it('returns at most the last 12 buckets when more months are present', () => {
-    const issues = Array.from({ length: 15 }, (_, i) => ({
-      created_at: `2025-${String((i % 12) + 1).padStart(2, '0')}-01T00:00:00Z`,
-    }))
     // Construct 15 distinct months across two years to exceed the 12-bucket cap
     const spreadIssues = Array.from({ length: 15 }, (_, i) => {
       const year = 2025 + Math.floor(i / 12)

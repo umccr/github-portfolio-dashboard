@@ -4,7 +4,6 @@ import { STORAGE_KEYS } from '../config/dashboard'
 const ThemeCtx = createContext(null)
 
 export function ThemeProvider({ children }) {
-
   const [theme, setTheme] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.theme)
@@ -13,10 +12,11 @@ export function ThemeProvider({ children }) {
         return stored
       }
 
-      if (stored !== null) {  
-        console.warn(`Invalid theme value found in localStorage: "${stored}". Falling back to 'dark'.`)
+      if (stored !== null) {
+        console.warn(
+          `Invalid theme value found in localStorage: "${stored}". Falling back to 'dark'.`,
+        )
       }
-
     } catch (error) {
       console.warn('Failed to read theme from localStorage:', error)
     }
@@ -34,14 +34,10 @@ export function ThemeProvider({ children }) {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))
   }
 
-  return (
-    <ThemeCtx.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeCtx.Provider>
-  )
+  return <ThemeCtx.Provider value={{ theme, toggleTheme }}>{children}</ThemeCtx.Provider>
 }
 
 export const useTheme = () => {

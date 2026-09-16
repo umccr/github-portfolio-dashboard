@@ -12,8 +12,10 @@ vi.mock('../context/app-context', () => ({ useApp: () => app.state }))
 function renderGuarded() {
   return render(
     <MemoryRouter>
-      <RequireAnalysis><div>analysis dashboard</div></RequireAnalysis>
-    </MemoryRouter>
+      <RequireAnalysis>
+        <div>analysis dashboard</div>
+      </RequireAnalysis>
+    </MemoryRouter>,
   )
 }
 

@@ -1,30 +1,26 @@
-import React, { useState } from "react";
-
-const Bar = ({ w = "100%", h = "0.75rem", className = "" }) => (
+const Bar = ({ w = '100%', h = '0.75rem', className = '' }) => (
   <div
     className={`animate-pulse rounded bg-neutral-800 ${className}`}
     style={{ width: w, height: h }}
   />
-);
+)
 
-const Box = ({ className = "", children }) => (
-  <div
-    className={`rounded-lg border border-neutral-800 bg-neutral-900 p-4 ${className}`}
-  >
+const Box = ({ className = '', children }) => (
+  <div className={`rounded-lg border border-neutral-800 bg-neutral-900 p-4 ${className}`}>
     {children}
   </div>
-);
+)
 
 const Circle = ({ size = 40 }) => (
   <div
     className="animate-pulse rounded-full bg-neutral-800 shrink-0"
     style={{ width: size, height: size }}
   />
-);
+)
 
-const Pill = ({ w = "4rem" }) => (
+const Pill = ({ w = '4rem' }) => (
   <div className="animate-pulse rounded-full bg-neutral-800 h-5" style={{ width: w }} />
-);
+)
 
 /* Overview */
 export function OverviewSkeleton() {
@@ -93,7 +89,7 @@ export function OverviewSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 /* Repository Explorer */
@@ -133,7 +129,7 @@ export function RepositorySkeleton() {
         ))}
       </Box>
     </div>
-  );
+  )
 }
 
 /* Contributor Intelligence */
@@ -181,7 +177,7 @@ export function ContributorSkeleton() {
         ))}
       </Box>
     </div>
-  );
+  )
 }
 
 /* Analytics */
@@ -218,7 +214,7 @@ export function AnalyticsSkeleton() {
         <Bar w="220px" h="0.8rem" />
       </Box>
     </div>
-  );
+  )
 }
 
 /* Governance Audit */
@@ -268,5 +264,5 @@ export function GovernanceSkeleton() {
         <Bar w="240px" h="0.6rem" />
       </Box>
     </div>
-  );
+  )
 }

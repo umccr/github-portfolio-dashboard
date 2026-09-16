@@ -111,7 +111,7 @@ describe('buildAnalyticalModel', () => {
     const reposPerOrg = { 'org-a': repos }
     const totalReposPerOrg = { 'org-a': repos }
     const contribsPerRepo = Object.fromEntries(
-      repos.map(r => [`org-a/${r.name}`, [{ login: 'carol', avatar_url: '', contributions: 1 }]])
+      repos.map(r => [`org-a/${r.name}`, [{ login: 'carol', avatar_url: '', contributions: 1 }]]),
     )
 
     const result = buildAnalyticalModel(orgs, reposPerOrg, contribsPerRepo, totalReposPerOrg)
@@ -126,7 +126,7 @@ describe('buildAnalyticalModel', () => {
     const reposPerOrg = { 'org-a': repos }
     const totalReposPerOrg = { 'org-a': repos }
     const contribsPerRepo = Object.fromEntries(
-      repos.map(r => [`org-a/${r.name}`, [{ login: 'dave', avatar_url: '', contributions: 1 }]])
+      repos.map(r => [`org-a/${r.name}`, [{ login: 'dave', avatar_url: '', contributions: 1 }]]),
     )
 
     const result = buildAnalyticalModel(orgs, reposPerOrg, contribsPerRepo, totalReposPerOrg)

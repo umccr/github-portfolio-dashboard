@@ -37,9 +37,9 @@ describe('useAdvancedMetrics', () => {
   })
 
   it('does not classify open pull requests as rejected', () => {
-    const { result } = renderHook(() => useAdvancedMetrics([
-      { state: 'open', created_at: '2026-01-01T00:00:00Z', merged_at: null },
-    ]))
+    const { result } = renderHook(() =>
+      useAdvancedMetrics([{ state: 'open', created_at: '2026-01-01T00:00:00Z', merged_at: null }]),
+    )
 
     expect(result.current.merged).toBe(0)
     expect(result.current.rejected).toBe(0)

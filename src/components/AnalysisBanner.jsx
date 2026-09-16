@@ -1,15 +1,19 @@
-import React, { useState } from 'react'
-import { FiLock, FiLoader, FiInfo, } from 'react-icons/fi'
-import { IoMdAnalytics } from "react-icons/io";
+import { useState } from 'react'
+import { FiLock, FiLoader, FiInfo } from 'react-icons/fi'
+import { IoMdAnalytics } from 'react-icons/io'
 import { useApp } from '../context/app-context'
 import LearnMoreModal from './LearnModeModal'
-import { useNavigate } from 'react-router-dom'
+import PatRequiredDialog from './PatRequiredDialog'
 
-
-export default function AnalysisBanner({ page, description, onRun, loading = false, analysisStatus = 'sample', }) {
-  const { pat } = useApp()
+export default function AnalysisBanner({
+  description,
+  onRun,
+  loading = false,
+  analysisStatus = 'sample',
+}) {
+  const { scopeHasPat } = useApp()
   const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
+  const [patDialogOpen, setPatDialogOpen] = useState(false)
 
   if (analysisStatus === 'complete') return null
 
@@ -62,7 +66,6 @@ export default function AnalysisBanner({ page, description, onRun, loading = fal
             }}
           >
             <IoMdAnalytics size={20} />
-
           </div>
 
           <div>
@@ -74,7 +77,6 @@ export default function AnalysisBanner({ page, description, onRun, loading = fal
                 marginBottom: 8,
               }}
             >
-
               <span
                 style={{
                   fontSize: 15,
@@ -149,8 +151,8 @@ export default function AnalysisBanner({ page, description, onRun, loading = fal
             type="button"
             disabled={loading}
             onClick={() => {
-              if (!pat) {
-                navigate('/settings')
+              if (!scopeHasPat) {
+                setPatDialogOpen(true)
                 return
               }
 
@@ -184,14 +186,12 @@ export default function AnalysisBanner({ page, description, onRun, loading = fal
             onMouseEnter={e => {
               if (!loading) {
                 e.currentTarget.style.transform = 'translateY(-1px)'
-                e.currentTarget.style.boxShadow =
-                  '0 8px 22px var(--action-shadow)'
+                e.currentTarget.style.boxShadow = '0 8px 22px var(--action-shadow)'
               }
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow =
-                '0 4px 14px var(--action-shadow)'
+              e.currentTarget.style.boxShadow = '0 4px 14px var(--action-shadow)'
             }}
           >
             {loading ? (
@@ -202,16 +202,14 @@ export default function AnalysisBanner({ page, description, onRun, loading = fal
             ) : (
               <>
                 <FiLock size={14} />
-                {pat ? 'Run Complete Analysis' : 'Connect PAT & Run'}
+                {scopeHasPat ? 'Run Complete Analysis' : 'Connect PAT & Run'}
               </>
             )}
           </button>
         </div>
       </div>
-      <LearnMoreModal
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <LearnMoreModal open={open} onClose={() => setOpen(false)} />
+      <PatRequiredDialog open={patDialogOpen} onClose={() => setPatDialogOpen(false)} />
     </>
   )
 }

@@ -17,7 +17,11 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 
 function PageFallback() {
   return (
-    <div style={{ minHeight: '55vh', display: 'grid', placeItems: 'center' }} role="status" aria-label="Loading page">
+    <div
+      style={{ minHeight: '55vh', display: 'grid', placeItems: 'center' }}
+      role="status"
+      aria-label="Loading page"
+    >
       <Spinner />
     </div>
   )
@@ -43,12 +47,54 @@ function AppContent() {
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Navigate to="/overview" replace />} />
-          <Route path="/overview" element={<Guarded><OverviewPage /></Guarded>} />
-          <Route path="/repositories" element={<Guarded><RepositoriesPage /></Guarded>} />
-          <Route path="/contributors" element={<Guarded><ContributorsPage /></Guarded>} />
-          <Route path="/contributors/:username" element={<Guarded><ContributorProfilePage /></Guarded>} />
-          <Route path="/analytics" element={<Guarded><AnalyticsPage /></Guarded>} />
-          <Route path="/governance" element={<Guarded><GovernancePage /></Guarded>} />
+          <Route
+            path="/overview"
+            element={
+              <Guarded>
+                <OverviewPage />
+              </Guarded>
+            }
+          />
+          <Route
+            path="/repositories"
+            element={
+              <Guarded>
+                <RepositoriesPage />
+              </Guarded>
+            }
+          />
+          <Route
+            path="/contributors"
+            element={
+              <Guarded>
+                <ContributorsPage />
+              </Guarded>
+            }
+          />
+          <Route
+            path="/contributors/:username"
+            element={
+              <Guarded>
+                <ContributorProfilePage />
+              </Guarded>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <Guarded>
+                <AnalyticsPage />
+              </Guarded>
+            }
+          />
+          <Route
+            path="/governance"
+            element={
+              <Guarded>
+                <GovernancePage />
+              </Guarded>
+            }
+          />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

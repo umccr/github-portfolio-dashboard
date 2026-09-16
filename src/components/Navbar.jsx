@@ -41,7 +41,9 @@ export default function Navbar() {
     <nav className="dashboard-navbar" aria-label="Primary navigation">
       <div className="dashboard-brand-group">
         <button type="button" className="dashboard-wordmark" onClick={() => navigate('/overview')}>
-          <span className="dashboard-wordmark-icon" aria-hidden="true"><FiGithub size={19} /></span>
+          <span className="dashboard-wordmark-icon" aria-hidden="true">
+            <FiGithub size={19} />
+          </span>
           <span>{APP_NAME}</span>
         </button>
 
@@ -69,7 +71,11 @@ export default function Navbar() {
           </button>
 
           {scopeOpen && (
-            <div className="dashboard-scope-menu" role="menu" aria-label="Dashboard organization scope">
+            <div
+              className="dashboard-scope-menu"
+              role="menu"
+              aria-label="Dashboard organization scope"
+            >
               <button
                 type="button"
                 role="menuitemradio"
@@ -77,9 +83,14 @@ export default function Navbar() {
                 onClick={() => chooseScope('all')}
               >
                 <span className="dashboard-scope-avatars" aria-hidden="true">
-                  {orgs.slice(0, 2).map(org => <img key={org.login} src={org.avatar_url} alt="" />)}
+                  {orgs.slice(0, 2).map(org => (
+                    <img key={org.login} src={org.avatar_url} alt="" />
+                  ))}
                 </span>
-                <span><strong>All organizations</strong><small>Combined portfolio</small></span>
+                <span>
+                  <strong>All organizations</strong>
+                  <small>Combined portfolio</small>
+                </span>
                 {selectedOrg === 'all' && <FiCheck size={15} />}
               </button>
 
@@ -93,10 +104,15 @@ export default function Navbar() {
                     aria-checked={selectedOrg === orgLogin}
                     onClick={() => chooseScope(orgLogin)}
                   >
-                    {metadata?.avatar_url
-                      ? <img className="dashboard-scope-avatar" src={metadata.avatar_url} alt="" />
-                      : <FiGithub size={18} aria-hidden="true" />}
-                    <span><strong>{organizationLabel(orgLogin)}</strong><small>@{orgLogin}</small></span>
+                    {metadata?.avatar_url ? (
+                      <img className="dashboard-scope-avatar" src={metadata.avatar_url} alt="" />
+                    ) : (
+                      <FiGithub size={18} aria-hidden="true" />
+                    )}
+                    <span>
+                      <strong>{organizationLabel(orgLogin)}</strong>
+                      <small>@{orgLogin}</small>
+                    </span>
                     {selectedOrg === orgLogin && <FiCheck size={15} />}
                   </button>
                 )
@@ -107,36 +123,45 @@ export default function Navbar() {
       </div>
 
       <div className="dashboard-navlinks">
-        {hasData && LINKS.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className="navbar-link"
-            style={({ isActive }) => ({
-              display: 'block',
-              padding: '17px 10px 15px',
-              fontSize: 13,
-              whiteSpace: 'nowrap',
-              textDecoration: 'none',
-              fontWeight: isActive ? 650 : 450,
-              color: isActive ? 'var(--accent)' : 'var(--text2)',
-              borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-            })}
-          >
-            {label}
-          </NavLink>
-        ))}
+        {hasData &&
+          LINKS.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className="navbar-link"
+              style={({ isActive }) => ({
+                display: 'block',
+                padding: '17px 10px 15px',
+                fontSize: 13,
+                whiteSpace: 'nowrap',
+                textDecoration: 'none',
+                fontWeight: isActive ? 650 : 450,
+                color: isActive ? 'var(--accent)' : 'var(--text2)',
+                borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+              })}
+            >
+              {label}
+            </NavLink>
+          ))}
       </div>
 
       <div className="dashboard-nav-actions">
         {rateLimit && (
-          <div className="dashboard-rate" style={{ color: lowLimit ? 'var(--red)' : 'var(--text2)' }} title="GitHub API requests remaining">
+          <div
+            className="dashboard-rate"
+            style={{ color: lowLimit ? 'var(--red)' : 'var(--text2)' }}
+            title="GitHub API requests remaining"
+          >
             <FiZap size={12} />
             <span>{rateLimit.remaining.toLocaleString()}</span>
           </div>
         )}
         <ThemeToggle />
-        <button type="button" onClick={() => navigate('/settings')} className="dashboard-settings-button">
+        <button
+          type="button"
+          onClick={() => navigate('/settings')}
+          className="dashboard-settings-button"
+        >
           <FiSettings size={14} /> <span>Settings</span>
         </button>
       </div>

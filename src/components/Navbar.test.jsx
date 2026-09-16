@@ -29,18 +29,29 @@ describe('Navbar organization scope', () => {
 
   it('shows the combined portfolio by default and offers both fixed organizations', async () => {
     const user = userEvent.setup()
-    render(<MemoryRouter><Navbar /></MemoryRouter>)
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    )
 
     await user.click(screen.getByRole('button', { name: /all organizations/i }))
 
-    expect(screen.getByRole('menuitemradio', { name: /combined portfolio/i })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('menuitemradio', { name: /combined portfolio/i })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
     expect(screen.getByRole('menuitemradio', { name: /umccr/i })).toBeInTheDocument()
     expect(screen.getByRole('menuitemradio', { name: /orcabus/i })).toBeInTheDocument()
   })
 
   it('applies a selected organization from the dropdown', async () => {
     const user = userEvent.setup()
-    render(<MemoryRouter><Navbar /></MemoryRouter>)
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    )
 
     await user.click(screen.getByRole('button', { name: /all organizations/i }))
     await user.click(screen.getByRole('menuitemradio', { name: /umccr/i }))

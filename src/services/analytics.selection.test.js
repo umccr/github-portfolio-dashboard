@@ -36,4 +36,11 @@ describe('selectAnalyticsRepositories', () => {
 
     expect(selected).toHaveLength(8)
   })
+
+  it('applies authentication independently for each organization', () => {
+    const selected = selectAnalyticsRepositories(repos, 'all', orgLogin => orgLogin === 'umccr', 5)
+
+    expect(selected.filter(item => item.orgLogin === 'OrcaBus')).toHaveLength(5)
+    expect(selected.filter(item => item.orgLogin === 'umccr')).toHaveLength(8)
+  })
 })

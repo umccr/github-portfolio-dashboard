@@ -14,8 +14,9 @@ backend and reads data directly from the GitHub REST API.
 - Repository search, sorting, activity filters, language filters, and contributor filters
 - Locally pinned repositories that remain at the top of the repository table
 - Contributor profiles and downloadable activity reports
+- Rolling 1, 3, 6, and 12-month contributor commit filters
 - Pull request, issue, activity, and governance views
-- Optional GitHub Personal Access Token for higher API limits and complete analysis
+- Optional organization-specific GitHub Personal Access Tokens for higher API limits and complete analysis
 - Light and dark themes
 
 ## Run locally
@@ -40,38 +41,16 @@ Run the test suite with:
 npm test -- --run
 ```
 
-## Deploy to GitHub Pages
-
-The repository includes `.github/workflows/deploy.yml`. It tests and builds the Vite
-application, uploads `dist`, and deploys it through GitHub Pages whenever `main` is
-updated. The production Vite base path and React Router basename are configured for
-`/github-portfolio-dashboard/`.
-
-After the `init` branch has been pushed and reviewed:
-
-1. Merge `init` into the repository's `main` branch.
-2. Open **Settings → Pages** in GitHub.
-3. Under **Build and deployment**, select **GitHub Actions** as the source.
-4. Open the **Actions** tab and confirm the **Deploy UMCCR GitHub Portfolio** workflow succeeds.
-5. Visit <https://umccr.github.io/github-portfolio-dashboard/>. A first deployment can take a few minutes.
-
-Future pushes to `main` deploy automatically. The generated `404.html` allows direct
-visits and browser refreshes on client-side routes such as `/overview` and
-`/contributors`.
-
-GitHub Pages is an internet-facing static host. Never commit or build a personal
-access token into the application; users should continue entering tokens through
-Settings, where they are retained for the browser session only.
-
 ## Configuration
 
 The fixed organization list and browser storage keys live in
 `src/config/dashboard.js`.
 
-No token is required for the standard view. For complete analysis, create a
-fine-grained GitHub token with read-only access to the repositories the dashboard
-must inspect. The token is kept in `sessionStorage`, is never written to the app's
-cache, and is forgotten when the browser session ends or when **Forget** is used in
+No token is required for the standard view. For complete analysis of both
+organizations, create one fine-grained token owned by UMCCR and another owned by
+OrcaBus, each with read-only access to the repositories the dashboard must inspect.
+The tokens are stored separately in `sessionStorage`, are never written to the app's
+cache, and are forgotten when the browser session ends or when **Forget** is used in
 Settings.
 
 Repository pins, theme choice, and rate-limit metadata are stored in `localStorage`.
@@ -79,8 +58,8 @@ Fetched GitHub responses and the latest analysis are cached in IndexedDB. Cleari
 site data removes all of these preferences and cached results.
 
 Because this is a client-side application, any script running on the same origin can
-access browser storage. Deploy only trusted builds, use a dedicated least-privilege
-token, and avoid sharing a deployment origin with unrelated applications.
+access browser storage. Deploy only trusted builds, use dedicated least-privilege
+tokens, and avoid sharing a deployment origin with unrelated applications.
 
 ## Attribution and license
 

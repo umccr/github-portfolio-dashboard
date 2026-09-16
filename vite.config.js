@@ -1,9 +1,9 @@
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import svgr from "vite-plugin-svgr";
-import { copyFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import svgr from 'vite-plugin-svgr'
+import { copyFileSync, existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 /**
  * GitHub Pages serves static files only — it has no rewrite rule to map client-side
@@ -16,29 +16,29 @@ import { resolve } from "node:path";
  * from window.location. The URL is preserved, so there is no redirect and no flash.
  */
 function spaDeepLinkFallback() {
-  let outDir;
+  let outDir
 
   return {
-    name: "spa-deep-link-fallback",
-    apply: "build",
+    name: 'spa-deep-link-fallback',
+    apply: 'build',
     configResolved(config) {
-      outDir = resolve(config.root, config.build.outDir);
+      outDir = resolve(config.root, config.build.outDir)
     },
     closeBundle() {
-      const indexHtml = resolve(outDir, "index.html");
+      const indexHtml = resolve(outDir, 'index.html')
       if (existsSync(indexHtml)) {
-        copyFileSync(indexHtml, resolve(outDir, "404.html"));
+        copyFileSync(indexHtml, resolve(outDir, '404.html'))
       }
     },
-  };
+  }
 }
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), svgr(), spaDeepLinkFallback()],
-  base: mode === "production" ? "/github-portfolio-dashboard/" : "/",
+  base: mode === 'production' ? '/github-portfolio-dashboard/' : '/',
   test: {
     globals: true,
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.js",
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
   },
-}));
+}))
