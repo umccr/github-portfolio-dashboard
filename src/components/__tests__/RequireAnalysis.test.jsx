@@ -1,19 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import RequireAnalysis from './RequireAnalysis'
+import RequireAnalysis from '../RequireAnalysis'
 
 const app = vi.hoisted(() => ({
   state: { model: null, error: '', hydrating: false, explore: vi.fn() },
 }))
 
-vi.mock('../context/app-context', () => ({ useApp: () => app.state }))
+vi.mock('../../context/app-context', () => ({ useApp: () => app.state }))
 
 function renderGuarded() {
   return render(
     <MemoryRouter>
-      <RequireAnalysis><div>analysis dashboard</div></RequireAnalysis>
-    </MemoryRouter>
+      <RequireAnalysis>
+        <div>analysis dashboard</div>
+      </RequireAnalysis>
+    </MemoryRouter>,
   )
 }
 

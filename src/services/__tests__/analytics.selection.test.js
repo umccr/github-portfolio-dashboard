@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { selectAnalyticsRepositories } from './analytics'
+import { selectAnalyticsRepositories } from '../analytics'
 
 const repo = (id, orgLogin, stars) => ({
   id,
@@ -35,5 +35,12 @@ describe('selectAnalyticsRepositories', () => {
     const selected = selectAnalyticsRepositories(repos, 'OrcaBus', true, 5)
 
     expect(selected).toHaveLength(8)
+  })
+
+  it('applies authentication independently for each organization', () => {
+    const selected = selectAnalyticsRepositories(repos, 'all', orgLogin => orgLogin === 'umccr', 5)
+
+    expect(selected.filter(item => item.orgLogin === 'OrcaBus')).toHaveLength(5)
+    expect(selected.filter(item => item.orgLogin === 'umccr')).toHaveLength(8)
   })
 })

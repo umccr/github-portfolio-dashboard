@@ -26,10 +26,18 @@ export default function RequireAnalysis({ children }) {
           <FiAlertTriangle size={24} style={{ marginBottom: 8 }} />
           <p>{error}</p>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button type="button" onClick={explore} style={{ ...C.btn('primary'), display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <button
+              type="button"
+              onClick={explore}
+              style={{ ...C.btn('primary'), display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
               <FiRefreshCw size={14} /> Retry
             </button>
-            <button type="button" onClick={() => navigate('/settings')} style={{ ...C.btn('ghost'), display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <button
+              type="button"
+              onClick={() => navigate('/settings')}
+              style={{ ...C.btn('ghost'), display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
               <FiSettings size={14} /> Configure token
             </button>
           </div>

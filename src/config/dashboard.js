@@ -12,7 +12,13 @@ export const STORAGE_KEYS = Object.freeze({
   pins: 'github-dashboard:v1:pinned-repositories',
   rateLimit: 'github-dashboard:v1:rate-limit',
   theme: 'github-dashboard:v1:theme',
-  token: 'github-dashboard:session:github-token',
+  // Fine-grained PATs are restricted to one resource owner, so keep a
+  // separate session-only credential for each organization in the portfolio.
+  tokens: Object.freeze({
+    OrcaBus: 'github-dashboard:session:github-token:orcabus',
+    umccr: 'github-dashboard:session:github-token:umccr',
+  }),
+  legacyToken: 'github-dashboard:session:github-token',
 })
 
 export const organizationLabel = login => ORGANIZATION_LABELS[login] || login

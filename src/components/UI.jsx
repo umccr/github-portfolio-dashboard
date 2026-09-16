@@ -1,7 +1,4 @@
-import React from 'react'
-import {
-  FiChevronUp, FiChevronDown
-} from 'react-icons/fi'
+import { FiChevronUp, FiChevronDown, FiHelpCircle } from 'react-icons/fi'
 import { LuChevronsUpDown as FiChevronsUpDown } from 'react-icons/lu'
 
 // Design tokens
@@ -38,10 +35,17 @@ export const C = {
     cursor: 'pointer',
     border: 'none',
     transition: 'opacity .15s',
-    ...(v === 'primary' ? { background: 'var(--action)', color: '#111', boxShadow: '0 3px 10px var(--action-shadow)' }
-      : v === 'ghost' ? { background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }
-      :  v === 'danger' ? { background: 'var(--red)', color: '#fff' }
-                        : { background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }),
+    ...(v === 'primary'
+      ? { background: 'var(--action)', color: '#111', boxShadow: '0 3px 10px var(--action-shadow)' }
+      : v === 'ghost'
+        ? { background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)' }
+        : v === 'danger'
+          ? { background: 'var(--red)', color: '#fff' }
+          : {
+              background: 'var(--surface2)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+            }),
   }),
   input: {
     background: 'var(--surface2)',
@@ -66,14 +70,14 @@ export const C = {
 
 // Activity badge color map
 const LC = {
-  Thriving:  ['#22c55e', 'rgba(34,197,94,.15)'],
-  Active:    ['#3b82f6', 'rgba(59,130,246,.15)'],
-  Dormant:   ['#f59e0b', 'rgba(245,158,11,.15)'],
+  Thriving: ['#22c55e', 'rgba(34,197,94,.15)'],
+  Active: ['#3b82f6', 'rgba(59,130,246,.15)'],
+  Dormant: ['#f59e0b', 'rgba(245,158,11,.15)'],
   Hibernating: ['#ef4444', 'rgba(239,68,68,.15)'],
-  critical:  ['#ef4444', 'rgba(239,68,68,.15)'],
-  high:      ['#f59e0b', 'rgba(245,158,11,.15)'],
-  healthy:   ['#22c55e', 'rgba(34,197,94,.15)'],
-  unknown:   ['#666',    'rgba(102,102,102,.15)'],
+  critical: ['#ef4444', 'rgba(239,68,68,.15)'],
+  high: ['#f59e0b', 'rgba(245,158,11,.15)'],
+  healthy: ['#22c55e', 'rgba(34,197,94,.15)'],
+  unknown: ['#666', 'rgba(102,102,102,.15)'],
 }
 
 export function Badge({ text, variant }) {
@@ -94,11 +98,45 @@ export function HealthBar({ score }) {
   )
 }
 
-export function StatCard({ label, value, sub, accent }) {
+export function StatCard({ label, value, sub, accent, helpText }) {
   return (
     <div style={{ ...C.card, textAlign: 'center' }}>
-      <div style={C.label}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: accent || 'var(--accent)', margin: '6px 0 2px' }}>{value}</div>
+      <div
+        style={{
+          ...C.label,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 5,
+        }}
+      >
+        <span>{label}</span>
+        {helpText && (
+          <span
+            tabIndex={0}
+            title={helpText}
+            aria-label={`${label}: ${helpText}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: 'var(--text2)',
+              cursor: 'help',
+            }}
+          >
+            <FiHelpCircle size={13} aria-hidden="true" />
+          </span>
+        )}
+      </div>
+      <div
+        style={{
+          fontSize: 28,
+          fontWeight: 700,
+          color: accent || 'var(--accent)',
+          margin: '6px 0 2px',
+        }}
+      >
+        {value}
+      </div>
       {sub && <div style={{ fontSize: 12, color: 'var(--text2)' }}>{sub}</div>}
     </div>
   )
@@ -106,27 +144,37 @@ export function StatCard({ label, value, sub, accent }) {
 
 export function Spinner({ size = 28 }) {
   return (
-    <div style={{
-      width: size, height: size,
-      border: '3px solid var(--border)',
-      borderTop: '3px solid var(--accent)',
-      borderRadius: '50%',
-      animation: 'spin .8s linear infinite',
-    }} />
+    <div
+      style={{
+        width: size,
+        height: size,
+        border: '3px solid var(--border)',
+        borderTop: '3px solid var(--accent)',
+        borderRadius: '50%',
+        animation: 'spin .8s linear infinite',
+      }}
+    />
   )
 }
 
-export function SortTh({ label, sortKey, sortConfig, onSort }) {
+export function SortTh({ label, sortKey, sortConfig, onSort, title }) {
   const active = sortConfig.key === sortKey
   const Icon = !active ? FiChevronsUpDown : sortConfig.dir === 'desc' ? FiChevronDown : FiChevronUp
   return (
     <th
       onClick={() => onSort(sortKey)}
+      title={title}
       style={{
-        padding: '10px 14px', textAlign: 'left', cursor: 'pointer',
-        userSelect: 'none', whiteSpace: 'nowrap', fontSize: 11,
-        fontWeight: 600, letterSpacing: '.06em',
-        background: 'var(--surface2)', borderBottom: '1px solid var(--border)',
+        padding: '10px 14px',
+        textAlign: 'left',
+        cursor: 'pointer',
+        userSelect: 'none',
+        whiteSpace: 'nowrap',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '.06em',
+        background: 'var(--surface2)',
+        borderBottom: '1px solid var(--border)',
         color: active ? 'var(--accent)' : 'var(--text2)',
       }}
     >
@@ -139,10 +187,19 @@ export function SortTh({ label, sortKey, sortConfig, onSort }) {
 
 export function PageTitle({ title, subtitle, right }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        marginBottom: 24,
+      }}
+    >
       <div>
         <h1 style={{ fontSize: 26, fontWeight: 700 }}>{title}</h1>
-        {subtitle && <p style={{ color: 'var(--text2)', fontSize: 13, marginTop: 4 }}>{subtitle}</p>}
+        {subtitle && (
+          <p style={{ color: 'var(--text2)', fontSize: 13, marginTop: 4 }}>{subtitle}</p>
+        )}
       </div>
       {right}
     </div>
@@ -153,7 +210,9 @@ export function LoadMore({ shown, total, onLoad }) {
   if (shown >= total) return null
   return (
     <div style={{ textAlign: 'center', padding: '24px 0' }}>
-      <button onClick={onLoad} style={C.btn('primary')}>Load More</button>
+      <button onClick={onLoad} style={C.btn('primary')}>
+        Load More
+      </button>
       <p style={{ fontSize: 12, color: 'var(--text2)', marginTop: 8 }}>
         Showing {shown} of {total}
       </p>

@@ -1,10 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FiArrowLeft, FiDownload, FiExternalLink, FiCalendar, FiBriefcase, FiAlertTriangle } from 'react-icons/fi'
+import {
+  FiArrowLeft,
+  FiDownload,
+  FiExternalLink,
+  FiCalendar,
+  FiBriefcase,
+  FiAlertTriangle,
+} from 'react-icons/fi'
 import { useApp } from '../context/app-context'
 import { C, PageTitle, Spinner, StatCard } from '../components/UI'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { DASHBOARD_ORGANIZATIONS } from '../config/dashboard'
+import { fetchContributorActivity } from '../services/github'
+import { escapeMarkdownTableCell } from '../utils/markdown'
 
 // Reusable ContributionTable component
 function ContributionTable({ items, dateHeader, resolveStatus }) {
@@ -22,31 +31,106 @@ function ContributionTable({ items, dateHeader, resolveStatus }) {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text2)', fontWeight: 600, borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>TITLE / NUMBER</th>
-            <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text2)', fontWeight: 600, borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>REPOSITORY</th>
-            <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text2)', fontWeight: 600, borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>{dateHeader}</th>
-            <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text2)', fontWeight: 600, borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>STATUS</th>
-            <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text2)', fontWeight: 600, borderBottom: '1px solid var(--border)', background: 'var(--surface2)' }}>LINK</th>
+            <th
+              style={{
+                padding: '8px 14px',
+                textAlign: 'left',
+                fontSize: 11,
+                color: 'var(--text2)',
+                fontWeight: 600,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--surface2)',
+              }}
+            >
+              TITLE / NUMBER
+            </th>
+            <th
+              style={{
+                padding: '8px 14px',
+                textAlign: 'left',
+                fontSize: 11,
+                color: 'var(--text2)',
+                fontWeight: 600,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--surface2)',
+              }}
+            >
+              REPOSITORY
+            </th>
+            <th
+              style={{
+                padding: '8px 14px',
+                textAlign: 'left',
+                fontSize: 11,
+                color: 'var(--text2)',
+                fontWeight: 600,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--surface2)',
+              }}
+            >
+              {dateHeader}
+            </th>
+            <th
+              style={{
+                padding: '8px 14px',
+                textAlign: 'left',
+                fontSize: 11,
+                color: 'var(--text2)',
+                fontWeight: 600,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--surface2)',
+              }}
+            >
+              STATUS
+            </th>
+            <th
+              style={{
+                padding: '8px 14px',
+                textAlign: 'left',
+                fontSize: 11,
+                color: 'var(--text2)',
+                fontWeight: 600,
+                borderBottom: '1px solid var(--border)',
+                background: 'var(--surface2)',
+              }}
+            >
+              LINK
+            </th>
           </tr>
         </thead>
         <tbody>
           {items.map((item, i) => {
             const { status, color, bg } = resolveStatus(item)
             return (
-              <tr key={item.id} style={{ borderBottom: '1px solid var(--border)', background: i % 2 ? 'var(--surface2)' : 'transparent' }}>
+              <tr
+                key={item.id}
+                style={{
+                  borderBottom: '1px solid var(--border)',
+                  background: i % 2 ? 'var(--surface2)' : 'transparent',
+                }}
+              >
                 <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 500 }}>
                   <div>{item.title}</div>
                   <span style={{ fontSize: 11, color: 'var(--text2)' }}>#{item.number}</span>
                 </td>
                 <td style={{ padding: '12px 14px', fontSize: 13 }}>
-                  <span style={C.pill('var(--accent)', 'rgba(245,197,24,.1)')}>{item.repoName}</span>
+                  <span style={C.pill('var(--accent)', 'rgba(245,197,24,.1)')}>
+                    {item.repoName}
+                  </span>
                 </td>
-                <td style={{ padding: '12px 14px', fontSize: 12, color: 'var(--text2)' }}>{item.created_at.slice(0, 10)}</td>
+                <td style={{ padding: '12px 14px', fontSize: 12, color: 'var(--text2)' }}>
+                  {item.created_at.slice(0, 10)}
+                </td>
                 <td style={{ padding: '12px 14px' }}>
                   <span style={C.pill(color, bg)}>{status.toUpperCase()}</span>
                 </td>
                 <td style={{ padding: '12px 14px' }}>
-                  <a href={item.html_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <a
+                    href={item.html_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                  >
                     <FiExternalLink size={12} /> GitHub
                   </a>
                 </td>
@@ -59,48 +143,14 @@ function ContributionTable({ items, dateHeader, resolveStatus }) {
   )
 }
 
-// Pagination helper to fetch up to 10 pages (1,000 results maximum)
-async function fetchAllPages(initialUrl, headers, signal) {
-  let items = []
-  let url = initialUrl
-  for (let page = 1; page <= 10; page++) {
-    const res = await fetch(url, { headers, signal })
-    if (res.status === 403) {
-      throw new Error('RATE_LIMIT')
-    }
-    if (!res.ok) {
-      throw new Error(`HTTP_${res.status}`)
-    }
-    const data = await res.json()
-    items = items.concat(data.items || [])
-
-    const linkHeader = res.headers.get('Link')
-    if (!linkHeader) break
-
-    const match = linkHeader.match(/<([^>]+)>;\s*rel="next"/)
-    if (!match) break
-
-    url = match[1]
-  }
-  return items
-}
-
-// Helper to escape table cell values for markdown
-const cell = (val) => {
-  if (val === null || val === undefined) return ''
-  return String(val)
-    .replace(/\r?\n/g, ' ')
-    .replace(/\|/g, '\\|')
-}
-
 // Helper to extract owner/repo from GitHub API repository URL
-const getFullRepoFromUrl = (url) => {
+const getFullRepoFromUrl = url => {
   if (!url) return ''
   const parts = url.split('/')
   return parts.slice(-2).join('/')
 }
 
-const getOrgFromRepoUrl = (url) => {
+const getOrgFromRepoUrl = url => {
   if (typeof url !== 'string') return ''
   const match = url.match(/\/repos\/([^/]+)\/([^/]+)/)
   return match ? match[1] : ''
@@ -109,45 +159,47 @@ const getOrgFromRepoUrl = (url) => {
 export default function ContributorProfilePage() {
   const { username } = useParams()
   const navigate = useNavigate()
-  const { orgs, pat, pullsData, model, selectedOrg } = useApp()
+  const { orgs, getPatForOrg, pullsData, model, selectedOrg } = useApp()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [rawContributions, setRawContributions] = useState([])
-  const [mergedPRKeys, setMergedPRKeys] = useState(new Set())
   const [tab, setTab] = useState('prs')
-
 
   const contributor = useMemo(
     () => model?.contributors?.find(c => c.login === username),
-    [model, username]
+    [model, username],
   )
 
   // Date Range Filters (Defaults to Last 1 Year)
   const [startDate, setStartDate] = useState(() => {
     const d = new Date()
     d.setFullYear(d.getFullYear() - 1)
-    const pad = (n) => String(n).padStart(2, '0')
+    const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
   })
   const [endDate, setEndDate] = useState(() => {
     const d = new Date()
-    const pad = (n) => String(n).padStart(2, '0')
+    const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
   })
 
   const searchOrgs = useMemo(
-    () => selectedOrg === 'all'
-      ? (orgs.length ? orgs.map(org => org.login) : DASHBOARD_ORGANIZATIONS)
-      : [selectedOrg],
-    [orgs, selectedOrg]
+    () =>
+      selectedOrg === 'all'
+        ? orgs.length
+          ? orgs.map(org => org.login)
+          : DASHBOARD_ORGANIZATIONS
+        : [selectedOrg],
+    [orgs, selectedOrg],
   )
 
   // Fetch contributor issues & PRs from GitHub Search API (Supports pagination & cleanup)
   useEffect(() => {
     // Reset data states to prevent rendering stale profile info
     setRawContributions([])
-    setMergedPRKeys(new Set())
+    setNotice('')
 
     if (!username) {
       setLoading(false)
@@ -155,7 +207,9 @@ export default function ContributorProfilePage() {
     }
 
     if (!searchOrgs.length) {
-      setError('The configured organizations are not available. Reload the dashboard and try again.')
+      setError(
+        'The configured organizations are not available. Reload the dashboard and try again.',
+      )
       setLoading(false)
       return
     }
@@ -167,47 +221,75 @@ export default function ContributorProfilePage() {
       setLoading(true)
       setError('')
       try {
-        const encodedUser = encodeURIComponent(username)
-        const headers = {
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        }
-        if (pat) {
-          headers.Authorization = `Bearer ${pat}`
-        }
-
         // GitHub search combines repeated org qualifiers with AND, so query
         // each organization independently and merge the results client-side.
-        const organizationResults = await Promise.all(searchOrgs.map(async org => {
-          const orgQuery = `org:${encodeURIComponent(org)}`
-          const url = `https://api.github.com/search/issues?q=author:${encodedUser}+${orgQuery}&per_page=100`
-          const mergedUrl = `https://api.github.com/search/issues?q=author:${encodedUser}+is:pr+is:merged+${orgQuery}&per_page=100`
-          const [items, mergedItems] = await Promise.all([
-            fetchAllPages(url, headers, controller.signal),
-            fetchAllPages(mergedUrl, headers, controller.signal),
-          ])
-          return { items, mergedItems }
-        }))
+        // Run them sequentially to avoid a burst against GitHub's separate
+        // Search API rate limit (especially under React Strict Mode in dev).
+        const organizationResults = []
+        const failedOrganizations = []
+
+        for (const org of searchOrgs) {
+          try {
+            const result = await fetchContributorActivity(org, username, getPatForOrg(org), {
+              startDate,
+              endDate,
+              signal: controller.signal,
+            })
+            organizationResults.push({ org, ...result })
+          } catch (organizationError) {
+            if (organizationError.name === 'AbortError') throw organizationError
+            failedOrganizations.push({ org, error: organizationError })
+          }
+        }
+
+        if (!organizationResults.length && failedOrganizations.length) {
+          throw failedOrganizations[0].error
+        }
 
         const items = organizationResults.flatMap(result => result.items)
-        const mergedItems = organizationResults.flatMap(result => result.mergedItems)
 
         if (!active) return
-
-        const mergedKeys = new Set(
-          mergedItems.map(item => {
-            const repo = getFullRepoFromUrl(item.repository_url)
-            return `${repo}/${item.number}`
-          })
-        )
-
-        setMergedPRKeys(mergedKeys)
         setRawContributions(items)
+
+        const messages = []
+        const publicFallbackOrgs = organizationResults
+          .filter(result => result.usedPublicFallback)
+          .map(result => result.org)
+        const truncatedOrgs = organizationResults
+          .filter(result => result.truncated)
+          .map(result => result.org)
+
+        if (publicFallbackOrgs.length) {
+          messages.push(
+            `GitHub rejected the authenticated search for ${publicFallbackOrgs.join(', ')}, so public repository results are shown for that scope. Check the matching token permissions and organization approval in Settings.`,
+          )
+        }
+        if (failedOrganizations.length) {
+          messages.push(
+            `Contributor data is partial because ${failedOrganizations.map(result => result.org).join(', ')} could not be loaded.`,
+          )
+        }
+        if (truncatedOrgs.length) {
+          messages.push(
+            `GitHub Search returned its first 1,000 results for ${truncatedOrgs.join(', ')}; use a narrower reporting window for a complete count.`,
+          )
+        }
+        setNotice(messages.join(' '))
       } catch (err) {
         if (!active) return
         if (err.name === 'AbortError') return
         if (err.message === 'RATE_LIMIT') {
-          setError('GitHub API search rate limit reached. Please wait a minute or configure a PAT in Settings.')
+          setError(
+            'GitHub API search rate limit reached. Please wait a minute or configure a PAT in Settings.',
+          )
+        } else if (err.message === 'FORBIDDEN') {
+          setError(
+            'GitHub denied the contributor search. Check the matching organization token permissions and approval in Settings.',
+          )
+        } else if (err.status === 422) {
+          setError(
+            `GitHub could not process the contributor search${err.details ? `: ${err.details}` : '.'} Try a narrower reporting window or check the organization token in Settings.`,
+          )
         } else {
           setError(`Failed to fetch contributor details: ${err.message}`)
         }
@@ -224,12 +306,12 @@ export default function ContributorProfilePage() {
       active = false
       controller.abort()
     }
-  }, [username, searchOrgs, pat])
+  }, [username, searchOrgs, getPatForOrg, startDate, endDate])
 
   // Presets using local date offsets
-  const setPreset = (type) => {
+  const setPreset = type => {
     const d = new Date()
-    const pad = (n) => String(n).padStart(2, '0')
+    const pad = n => String(n).padStart(2, '0')
     const todayStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
     if (type === 'week') {
@@ -255,14 +337,12 @@ export default function ContributorProfilePage() {
       setEndDate('')
     }
   }
-  
 
   const filteredContribs = useMemo(() => {
     return rawContributions.filter(item => {
-
       // Organization filter
       if (selectedOrg !== 'all') {
-       const organization = getOrgFromRepoUrl(item.repository_url)
+        const organization = getOrgFromRepoUrl(item.repository_url)
         if (organization !== selectedOrg) {
           return false
         }
@@ -312,11 +392,11 @@ export default function ContributorProfilePage() {
           merged = true
         } else {
           const fullRepo = getFullRepoFromUrl(item.repository_url)
-          const localMatch = localPulls.find(p => p.number === item.number && p.base?.repo?.full_name === fullRepo)
+          const localMatch = localPulls.find(
+            p => p.number === item.number && p.base?.repo?.full_name === fullRepo,
+          )
           if (localMatch) {
             merged = Boolean(localMatch.merged_at)
-          } else {
-            merged = mergedPRKeys.has(`${fullRepo}/${item.number}`)
           }
         }
 
@@ -330,7 +410,7 @@ export default function ContributorProfilePage() {
     })
 
     return { prs: prList, issues: issueList }
-  }, [filteredContribs, pullsData, mergedPRKeys])
+  }, [filteredContribs, pullsData])
 
   // Time-series charting data (Chronological sorting by YYYY-MM)
   const chartData = useMemo(() => {
@@ -382,7 +462,7 @@ export default function ContributorProfilePage() {
       prs.forEach(p => {
         const status = p.state === 'open' ? 'Open' : p.isMerged ? 'Merged' : 'Closed'
         const date = p.created_at.slice(0, 10)
-        md += `| ${cell(p.repoName)} | #${p.number} | ${cell(p.title)} | ${date} | **${status}** | [PR Link](${p.html_url}) |\n`
+        md += `| ${escapeMarkdownTableCell(p.repoName)} | #${p.number} | ${escapeMarkdownTableCell(p.title)} | ${date} | **${status}** | [PR Link](${p.html_url}) |\n`
       })
     } else {
       md += `No pull requests recorded in this period.\n`
@@ -396,7 +476,7 @@ export default function ContributorProfilePage() {
       issues.forEach(i => {
         const status = i.state === 'open' ? 'Open' : 'Closed'
         const date = i.created_at.slice(0, 10)
-        md += `| ${cell(i.repoName)} | #${i.number} | ${cell(i.title)} | ${date} | **${status}** | [Issue Link](${i.html_url}) |\n`
+        md += `| ${escapeMarkdownTableCell(i.repoName)} | #${i.number} | ${escapeMarkdownTableCell(i.title)} | ${date} | **${status}** | [Issue Link](${i.html_url}) |\n`
       })
     } else {
       md += `No issues opened in this period.\n`
@@ -411,7 +491,7 @@ export default function ContributorProfilePage() {
     const url = URL.createObjectURL(blob)
     const a = Object.assign(document.createElement('a'), {
       href: url,
-      download: `contribution-report-${username}-${new Date().toISOString().slice(0, 10)}.md`
+      download: `contribution-report-${username}-${new Date().toISOString().slice(0, 10)}.md`,
     })
     document.body.appendChild(a)
     a.click()
@@ -423,9 +503,20 @@ export default function ContributorProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          gap: 16,
+        }}
+      >
         <Spinner size={36} />
-        <p style={{ color: 'var(--text2)', fontSize: 14 }}>Analyzing developer workspace history...</p>
+        <p style={{ color: 'var(--text2)', fontSize: 14 }}>
+          Analyzing developer workspace history...
+        </p>
       </div>
     )
   }
@@ -471,7 +562,13 @@ export default function ContributorProfilePage() {
           <button
             onClick={exportMarkdown}
             disabled={!filteredContribs.length}
-            style={{ ...C.btn('primary'), display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}
+            style={{
+              ...C.btn('primary'),
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 12,
+            }}
           >
             <FiDownload size={13} /> Export Contribution Report (.md)
           </button>
@@ -479,39 +576,91 @@ export default function ContributorProfilePage() {
       />
 
       {error && (
-        <div style={{ ...C.card, display: 'flex', alignItems: 'center', gap: 12, borderColor: 'var(--red)', background: 'rgba(239,68,68,.05)', marginBottom: 20 }}>
+        <div
+          style={{
+            ...C.card,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            borderColor: 'var(--red)',
+            background: 'rgba(239,68,68,.05)',
+            marginBottom: 20,
+          }}
+        >
           <FiAlertTriangle color="var(--red)" size={18} />
           <span style={{ fontSize: 13, color: 'var(--red)', fontWeight: 500 }}>{error}</span>
         </div>
       )}
 
+      {notice && (
+        <div
+          style={{
+            ...C.card,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            borderColor: 'var(--amber)',
+            background: 'rgba(245,158,11,.08)',
+            marginBottom: 20,
+          }}
+        >
+          <FiAlertTriangle color="var(--amber)" size={18} />
+          <span style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500 }}>{notice}</span>
+        </div>
+      )}
+
       {/* Date Filters Card */}
       <div style={{ ...C.card, marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+            flexWrap: 'wrap',
+            gap: 12,
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <FiCalendar size={15} color="var(--text2)" />
             <span style={{ fontWeight: 600, fontSize: 13 }}>Reporting Window & Date Presets</span>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => setPreset('week')} style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}>
+            <button
+              onClick={() => setPreset('week')}
+              style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}
+            >
               Last Week
             </button>
-            <button onClick={() => setPreset('month')} style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}>
+            <button
+              onClick={() => setPreset('month')}
+              style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}
+            >
               Last 30 Days
             </button>
-            <button onClick={() => setPreset('year')} style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}>
+            <button
+              onClick={() => setPreset('year')}
+              style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}
+            >
               Last 1 Year
             </button>
-            <button onClick={() => setPreset('all')} style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}>
+            <button
+              onClick={() => setPreset('all')}
+              style={{ ...C.btn('ghost'), fontSize: 11, padding: '4px 10px' }}
+            >
               All Time
             </button>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label htmlFor="start-date-input" style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 500 }}>START DATE</label>
+            <label
+              htmlFor="start-date-input"
+              style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 500 }}
+            >
+              START DATE
+            </label>
             <input
               id="start-date-input"
               type="date"
@@ -522,7 +671,12 @@ export default function ContributorProfilePage() {
           </div>
           <span style={{ color: 'var(--text2)', marginTop: 18 }}>to</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label htmlFor="end-date-input" style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 500 }}>END DATE</label>
+            <label
+              htmlFor="end-date-input"
+              style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 500 }}
+            >
+              END DATE
+            </label>
             <input
               id="end-date-input"
               type="date"
@@ -535,10 +689,32 @@ export default function ContributorProfilePage() {
       </div>
 
       {/* Key Metrics Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
-        <StatCard label="Total Contributions" value={filteredContribs.length} sub="Filtered timeframe" />
-        <StatCard label="Pull Requests" value={prs.length} sub={`${prs.filter(p => p.isMerged).length} Merged`} accent="var(--blue)" />
-        <StatCard label="Issues Opened" value={issues.length} sub={`${issues.filter(i => i.state === 'closed').length} Closed`} accent="var(--amber)" />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <StatCard
+          label="Total Contributions"
+          value={filteredContribs.length}
+          sub="Filtered timeframe"
+          helpText="Pull requests and issues opened by this contributor in the selected organization scope and date range. Commits are not included."
+        />
+        <StatCard
+          label="Pull Requests"
+          value={prs.length}
+          sub={`${prs.filter(p => p.isMerged).length} Merged`}
+          accent="var(--blue)"
+        />
+        <StatCard
+          label="Issues Opened"
+          value={issues.length}
+          sub={`${issues.filter(i => i.state === 'closed').length} Closed`}
+          accent="var(--amber)"
+        />
         <StatCard
           label="Active Repositories"
           value={new Set(filteredContribs.map(i => i.repository_url?.split('/').pop())).size}
@@ -572,12 +748,27 @@ export default function ContributorProfilePage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 12, fontSize: 11, color: 'var(--text2)' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 16,
+              justifyContent: 'center',
+              marginTop: 12,
+              fontSize: 11,
+              color: 'var(--text2)',
+            }}
+          >
             <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--blue)' }} /> Pull Requests
+              <span
+                style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--blue)' }}
+              />{' '}
+              Pull Requests
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--amber)' }} /> Issues
+              <span
+                style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--amber)' }}
+              />{' '}
+              Issues
             </span>
           </div>
         </div>
@@ -585,14 +776,25 @@ export default function ContributorProfilePage() {
 
       {/* Tabs for details list */}
       <div style={C.card}>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 4,
+            marginBottom: 20,
+            borderBottom: '1px solid var(--border)',
+            paddingBottom: 12,
+          }}
+        >
           <button
             onClick={() => setTab('prs')}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
               color: tab === 'prs' ? 'var(--text)' : 'var(--text2)',
               fontWeight: tab === 'prs' ? 600 : 400,
-              fontSize: 13, padding: '6px 12px',
+              fontSize: 13,
+              padding: '6px 12px',
               borderBottom: tab === 'prs' ? '2px solid var(--accent)' : '2px solid transparent',
             }}
           >
@@ -601,10 +803,13 @@ export default function ContributorProfilePage() {
           <button
             onClick={() => setTab('issues')}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
               color: tab === 'issues' ? 'var(--text)' : 'var(--text2)',
               fontWeight: tab === 'issues' ? 600 : 400,
-              fontSize: 13, padding: '6px 12px',
+              fontSize: 13,
+              padding: '6px 12px',
               borderBottom: tab === 'issues' ? '2px solid var(--accent)' : '2px solid transparent',
             }}
           >
@@ -616,10 +821,20 @@ export default function ContributorProfilePage() {
           <ContributionTable
             items={prs}
             dateHeader="SUBMITTED ON"
-            resolveStatus={(p) => {
+            resolveStatus={p => {
               const status = p.state === 'open' ? 'Open' : p.isMerged ? 'Merged' : 'Closed'
-              const color = status === 'Merged' ? 'var(--green)' : status === 'Open' ? 'var(--blue)' : 'var(--text2)'
-              const bg = status === 'Merged' ? 'rgba(34,197,94,.12)' : status === 'Open' ? 'rgba(59,130,246,.12)' : 'var(--surface2)'
+              const color =
+                status === 'Merged'
+                  ? 'var(--green)'
+                  : status === 'Open'
+                    ? 'var(--blue)'
+                    : 'var(--text2)'
+              const bg =
+                status === 'Merged'
+                  ? 'rgba(34,197,94,.12)'
+                  : status === 'Open'
+                    ? 'rgba(59,130,246,.12)'
+                    : 'var(--surface2)'
               return { status, color, bg }
             }}
           />
@@ -627,7 +842,7 @@ export default function ContributorProfilePage() {
           <ContributionTable
             items={issues}
             dateHeader="CREATED ON"
-            resolveStatus={(i) => {
+            resolveStatus={i => {
               const status = i.state === 'open' ? 'Open' : 'Closed'
               const color = status === 'Open' ? 'var(--blue)' : 'var(--text2)'
               const bg = status === 'Open' ? 'rgba(59,130,246,.12)' : 'var(--surface2)'

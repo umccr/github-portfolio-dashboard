@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiExternalLink, FiArrowRight } from 'react-icons/fi'
 import { useApp } from '../context/app-context'
 import { C, StatCard, HealthBar } from '../components/UI'
-import { AiOutlineInfoCircle } from "react-icons/ai";
+import { AiOutlineInfoCircle } from 'react-icons/ai'
 import AnalysisBanner from '../components/AnalysisBanner'
 import { OverviewSkeleton } from '../components/DashboardSkeletons'
-import {formatNumber} from '../utils/formatNumber'
+import { formatNumber } from '../utils/formatNumber'
 import { organizationLabel } from '../config/dashboard'
 
 const LANG_COLORS = ['#22c55e', '#f5c518', '#3b82f6', '#ef4444', '#a855f7', '#f97316', '#06b6d4']
-const fmt = n => n > 999 ? (n / 1000).toFixed(1) + 'k' : String(n)
-
 export default function OverviewPage() {
   const { orgs, model, isComplete, loading, runFullExplore, selectedOrg } = useApp()
   const navigate = useNavigate()
@@ -30,32 +28,32 @@ export default function OverviewPage() {
     }
   }, [])
 
-  if(loading) return <OverviewSkeleton />
+  if (loading) return <OverviewSkeleton />
   if (!model) return null
 
   const { totalRepos } = model
-  const scopedOrgs = selectedOrg === 'all'
-    ? orgs
-    : orgs.filter(org => org.login === selectedOrg)
+  const scopedOrgs = selectedOrg === 'all' ? orgs : orgs.filter(org => org.login === selectedOrg)
   const isMulti = scopedOrgs.length > 1
 
-  const filteredRepos = selectedOrg === 'all'
-    ? totalRepos
-    : totalRepos.filter(r => r.orgLogin === selectedOrg)
+  const filteredRepos =
+    selectedOrg === 'all' ? totalRepos : totalRepos.filter(r => r.orgLogin === selectedOrg)
 
   const totalStars = filteredRepos.reduce((s, r) => s + r.stargazers_count, 0)
   const totalForks = filteredRepos.reduce((s, r) => s + r.forks_count, 0)
-  const activeRepos = filteredRepos.filter(r => r.activityClassification === 'Thriving' || r.activityClassification === 'Active').length
+  const activeRepos = filteredRepos.filter(
+    r => r.activityClassification === 'Thriving' || r.activityClassification === 'Active',
+  ).length
 
   const langMap = {}
-  filteredRepos.forEach(r => { if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1 })
-  const langs = Object.entries(langMap).sort((a, b) => b[1] - a[1]).slice(0, 7)
+  filteredRepos.forEach(r => {
+    if (r.language) langMap[r.language] = (langMap[r.language] || 0) + 1
+  })
+  const langs = Object.entries(langMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 7)
   const langTotal = langs.reduce((s, [, c]) => s + c, 0)
 
   const topRepos = [...filteredRepos].sort((a, b) => b.healthScore - a.healthScore).slice(0, 5)
-
- 
-
 
   const NavCard = ({ to, label, sub }) => (
     <div
@@ -65,21 +63,19 @@ export default function OverviewPage() {
       onMouseLeave={e => {
         e.currentTarget.style.borderColor = 'var(--border)'
       }}
-      style={{...C.card,transition: 'border-color .2s' }} >
-      <div
-        style={{ fontWeight: 600,marginBottom: 4, fontSize: 14 }} >
-        {label}
-      </div>
+      style={{ ...C.card, transition: 'border-color .2s' }}
+    >
+      <div style={{ fontWeight: 600, marginBottom: 4, fontSize: 14 }}>{label}</div>
 
-      <div
-        style={{fontSize: 12, color: 'var(--text2)', marginBottom: 12, minHeight: 32 }}>
+      <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 12, minHeight: 32 }}>
         {sub}
       </div>
 
       <button
         type="button"
         onClick={() => navigate(to)}
-        style={{ ...C.btn('primary'), display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+        style={{ ...C.btn('primary'), display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}
+      >
         View {label}
         <FiArrowRight size={12} />
       </button>
@@ -88,7 +84,6 @@ export default function OverviewPage() {
 
   return (
     <div style={{ padding: '32px 24px', maxWidth: 1100, margin: '0 auto' }} className="fade-up">
-
       <AnalysisBanner
         page="overview"
         description="Organization insights are computed from a representative subset to balance speed and API usage. Connect a PAT to analyze every repository and access complete results."
@@ -100,31 +95,34 @@ export default function OverviewPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
         {isMulti ? (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {scopedOrgs.map((o, i) => o.avatar_url && (
-              <div
-                key={o.login}
-                style={{
-                  width: 36,
-                  height: 36,
-                  overflow: 'hidden',
-                  borderRadius: '50%',
-                  marginLeft: i ? -10 : 0,
-                  transition: 'width 0.25s ease',
-                  flexShrink: 0,
-                }}
-              >
-                <img
-                  src={o.avatar_url}
-                  alt={o.login}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    border: '2px solid var(--bg)',
-                  }}
-                />
-              </div>
-            ))}
+            {scopedOrgs.map(
+              (o, i) =>
+                o.avatar_url && (
+                  <div
+                    key={o.login}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      overflow: 'hidden',
+                      borderRadius: '50%',
+                      marginLeft: i ? -10 : 0,
+                      transition: 'width 0.25s ease',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <img
+                      src={o.avatar_url}
+                      alt={o.login}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        border: '2px solid var(--bg)',
+                      }}
+                    />
+                  </div>
+                ),
+            )}
           </div>
         ) : (
           scopedOrgs[0]?.avatar_url && (
@@ -135,25 +133,37 @@ export default function OverviewPage() {
           <h1 style={{ fontSize: 22, fontWeight: 700 }}>
             {isMulti
               ? scopedOrgs.map(org => organizationLabel(org.login)).join(' + ')
-              : (scopedOrgs[0]?.name || organizationLabel(scopedOrgs[0]?.login))}
+              : scopedOrgs[0]?.name || organizationLabel(scopedOrgs[0]?.login)}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--text2)', marginTop: 2 }}>
             {isMulti
               ? `${scopedOrgs.length} organizations — combined portfolio view`
-              : (scopedOrgs[0]?.description || `@${scopedOrgs[0]?.login}`)}
+              : scopedOrgs[0]?.description || `@${scopedOrgs[0]?.login}`}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {!isMulti && scopedOrgs[0]?.html_url && (
-            <a href={scopedOrgs[0].html_url} target="_blank" rel="noreferrer"
-              style={{ ...C.btn('primary'), display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+            <a
+              href={scopedOrgs[0].html_url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                ...C.btn('primary'),
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12,
+              }}
+            >
               <FiExternalLink size={13} /> View on GitHub
             </a>
           )}
         </div>
       </div>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
+      <div
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}
+      >
         <StatCard label="Total Repos" value={formatNumber(filteredRepos.length)} />
         <StatCard label="Total Stars" value={formatNumber(totalStars)} />
         <StatCard label="Total Forks" value={formatNumber(totalForks)} />
@@ -162,7 +172,7 @@ export default function OverviewPage() {
           value={formatNumber(activeRepos)}
           sub={`${(() => {
             const total = filteredRepos.length
-            return total > 0 ? Math.round(activeRepos / total * 100) : 0
+            return total > 0 ? Math.round((activeRepos / total) * 100) : 0
           })()}% of total`}
         />
       </div>
@@ -172,27 +182,41 @@ export default function OverviewPage() {
         <div style={C.card}>
           <div style={{ fontWeight: 600, marginBottom: 4 }}>Language Distribution</div>
           <div style={{ ...C.label, marginBottom: 16 }}>Technology Stack Analysis</div>
-          <div style={{ height: 10, borderRadius: 5, overflow: 'hidden', display: 'flex', marginBottom: 16 }}>
+          <div
+            style={{
+              height: 10,
+              borderRadius: 5,
+              overflow: 'hidden',
+              display: 'flex',
+              marginBottom: 16,
+            }}
+          >
             {langs.map(([lang, count], i) => (
-              <div key={lang} style={{ flex: count / langTotal, background: LANG_COLORS[i] }} title={lang} />
+              <div
+                key={lang}
+                style={{ flex: count / langTotal, background: LANG_COLORS[i] }}
+                title={lang}
+              />
             ))}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             {langs.map(([lang, count], i) => (
               <div key={lang} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: LANG_COLORS[i] }} />
+                <div
+                  style={{ width: 8, height: 8, borderRadius: '50%', background: LANG_COLORS[i] }}
+                />
                 <span style={{ fontSize: 12, color: 'var(--text2)' }}>
-                  {lang} <strong style={{ color: 'var(--text)' }}>{Math.round(count / langTotal * 100)}%</strong>
+                  {lang}{' '}
+                  <strong style={{ color: 'var(--text)' }}>
+                    {Math.round((count / langTotal) * 100)}%
+                  </strong>
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        <div
-          style={C.card}
-          className="relative"
-        >
+        <div style={C.card} className="relative">
           <div className="flex justify-between items-center font-semibold" ref={infoRef}>
             <p>High Impact Repositories</p>
 
@@ -206,11 +230,9 @@ export default function OverviewPage() {
           </div>
 
           {open && (
-            <div
-              className="absolute top-16 right-2 w-80 z-50 rounded-lg border-2 border-(--border) bg-(--surface) p-4 shadow-xl text-xs"
-            >
-              <strong>Health Score</strong> estimates the overall health of a repository on a scale of 0 – 100.
-
+            <div className="absolute top-16 right-2 w-80 z-50 rounded-lg border-2 border-(--border) bg-(--surface) p-4 shadow-xl text-xs">
+              <strong>Health Score</strong> estimates the overall health of a repository on a scale
+              of 0 – 100.
               <ul className="list-disc ml-4 mt-2 space-y-1">
                 <li>
                   <strong>Activity (40%)</strong> – How recently the repository has been updated.
@@ -222,7 +244,6 @@ export default function OverviewPage() {
                   <strong>Contributor Diversity (30%)</strong> – Number of active contributors.
                 </li>
               </ul>
-
               <p className="mt-2 text-xs text-(--text2)">
                 Higher scores indicate healthier and more actively maintained repositories.
               </p>
@@ -244,11 +265,31 @@ export default function OverviewPage() {
 
       {/* Nav cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
-        <NavCard to="/repositories" label="Repositories" sub="Explore and sort repos by health, and activity classification state" />
-        <NavCard to="/contributors" label="Contributors" sub="Analyze contribution patterns, bus factor, and connector signals" />
-        <NavCard to="/analytics" label="Analytics" sub="Time-series PR and issue velocity — weekly and monthly trends" />
-        <NavCard to="/governance" label="Governance" sub="Dead issues, zombie PRs, risky repos, license compliance" />
-        <NavCard to="/settings" label="Settings" sub="PAT authentication, API quota monitoring, cache management" />
+        <NavCard
+          to="/repositories"
+          label="Repositories"
+          sub="Explore and sort repos by health, and activity classification state"
+        />
+        <NavCard
+          to="/contributors"
+          label="Contributors"
+          sub="Analyze contribution patterns, bus factor, and connector signals"
+        />
+        <NavCard
+          to="/analytics"
+          label="Analytics"
+          sub="Time-series PR and issue velocity — weekly and monthly trends"
+        />
+        <NavCard
+          to="/governance"
+          label="Governance"
+          sub="Dead issues, zombie PRs, risky repos, license compliance"
+        />
+        <NavCard
+          to="/settings"
+          label="Settings"
+          sub="PAT authentication, API quota monitoring, cache management"
+        />
       </div>
     </div>
   )

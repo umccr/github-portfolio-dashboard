@@ -1,51 +1,53 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --bg:       #060606;
-  --surface:  #141414;
+  --bg: #060606;
+  --surface: #141414;
   --surface2: #1a1a1a;
-  --border:   #2a2a2a;
-  --accent:   #67a5ff;
+  --border: #2a2a2a;
+  --accent: #67a5ff;
   --accent-soft: rgba(103, 165, 255, 0.12);
   --accent-border: rgba(103, 165, 255, 0.35);
-  --action:   #f5c518;
+  --action: #f5c518;
   --action-shadow: rgba(245, 197, 24, 0.24);
-  --text:     #ffffff;
-  --text2:    #888888;
-  --text3:    #444444;
-  --green:    #22c55e;
-  --red:      #ef4444;
-  --blue:     #3b82f6;
-  --amber:    #f59e0b;
-  --purple:   #a855f7;
-  --radius:   8px;
+  --text: #ffffff;
+  --text2: #888888;
+  --text3: #444444;
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --amber: #f59e0b;
+  --purple: #a855f7;
+  --radius: 8px;
   --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.16);
   --transition: 160ms ease;
 }
 
 /* Light Theme */
-[data-theme="light"] {
-  --bg:       #ffffff;
-  --surface:  #f5f5f5;
+[data-theme='light'] {
+  --bg: #ffffff;
+  --surface: #f5f5f5;
   --surface2: #ececec;
-  --border:   #d5d5d5;
-  --accent:   #245ac7;
+  --border: #d5d5d5;
+  --accent: #245ac7;
   --accent-soft: rgba(36, 90, 199, 0.08);
   --accent-border: rgba(36, 90, 199, 0.28);
-  --action:   #e2ad00;
+  --action: #e2ad00;
   --action-shadow: rgba(226, 173, 0, 0.22);
-  --text:     #060606;
-  --text2:    #666666;
-  --text3:    #999999;
-  --green:    #16a34a;
-  --red:      #dc2626;
-  --blue:     #2563eb;
-  --amber:    #d97706;
-  --purple:   #9333ea;
-  --radius:   8px;
+  --text: #060606;
+  --text2: #666666;
+  --text3: #999999;
+  --green: #16a34a;
+  --red: #dc2626;
+  --blue: #2563eb;
+  --amber: #d97706;
+  --purple: #9333ea;
+  --radius: 8px;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
@@ -54,37 +56,62 @@ html, body, #root {
   line-height: 1.6;
 }
 
-button { cursor: pointer; font-family: inherit; }
-input, select { font-family: inherit; }
-a { color: var(--accent); text-decoration: none; }
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+input,
+select {
+  font-family: inherit;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .fade-up {
   animation: fadeUp 0.22s ease;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
+input[type='date']::-webkit-calendar-picker-indicator {
   cursor: pointer;
   transition: filter 0.2s ease;
 }
 
 /* Dark theme */
-:root:not([data-theme="light"]) input[type="date"]::-webkit-calendar-picker-indicator {
+:root:not([data-theme='light']) input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
 
 /* Light theme */
-[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+[data-theme='light'] input[type='date']::-webkit-calendar-picker-indicator {
   filter: none;
 }
 
@@ -159,7 +186,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .dashboard-scope-button:hover,
-.dashboard-scope-button[aria-expanded="true"] {
+.dashboard-scope-button[aria-expanded='true'] {
   border-color: var(--accent-border);
   background: var(--surface2);
 }
@@ -291,6 +318,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin: 0 0 14px;
 }
 
+.settings-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+  gap: 20px;
+}
+
+@media (max-width: 820px) {
+  .settings-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 760px) {
   .dashboard-navbar {
     padding: 0 12px;
@@ -310,5 +349,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .dashboard-navlinks a {
     padding-inline: 8px !important;
   }
-
 }
